@@ -37,8 +37,8 @@ cd scripts && ../.venv/bin/python -m pytest ../tests/ -v
 # Trigger sync
 gh workflow run "Sync Heatmaps" --field source=garmin
 
-# Deploy site
-vercel deploy --prod --yes
+# Deploy site (use the script: bare `vercel deploy` ships without data -> 404s)
+bash scripts/deploy_prod.sh
 ```
 
 ## Architecture
@@ -153,6 +153,7 @@ Applied consistently across frontend and backend:
 
 ## Gotchas
 
+- **Never run bare `vercel deploy --prod` from a laptop.** The upload has no `.git`, so `vercel_build.sh` cannot hydrate `site/*.json` from `dashboard-data` and the site ships with an empty `data.json` and no `activities.json` (404 on Activities/Analytics/Records, `slice` error on the dashboard). Use `bash scripts/deploy_prod.sh`.
 - **`.env` belongs at the repo root, never in `site/`** — `site/` is web-served, so a `.env`
   there would be publicly fetchable.
 - **`gh secret set` reads stdin only WITHOUT `--body -`.** `--body -` stores the literal string
