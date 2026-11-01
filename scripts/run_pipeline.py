@@ -313,9 +313,11 @@ def run_pipeline(
                 sync_best_efforts()
             except Exception as exc:
                 print(f"Warning: best-effort sync failed (non-fatal): {exc}")
-        # AI insights (non-fatal) — internally skips if no new running data
+        # AI insights are ON DEMAND only (the "Analyse" buttons -> api/analyze.js).
+        # The daily sync no longer calls Qwen. Set AI_INSIGHTS_AUTO=1 to re-enable
+        # (non-fatal; internally skips if no new running data).
         qwen_key = os.environ.get("QWEN_API_KEY", "").strip()
-        if qwen_key:
+        if qwen_key and os.environ.get("AI_INSIGHTS_AUTO", "").strip() == "1":
             try:
                 from generate_ai_insights import generate_ai_insights
                 generate_ai_insights()
