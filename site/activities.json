@@ -1,6 +1,60 @@
 {
   "activities": [
     {
+      "aerobic_te": 0.2,
+      "avg_hr": 99,
+      "avg_pace_secs_per_km": 306,
+      "calories": 28,
+      "date": "2026-11-01",
+      "distance": 1259.2,
+      "elevation_gain": 9.0,
+      "hr_zones": [
+        {
+          "low_bpm": 57,
+          "seconds": 385,
+          "zone": 1
+        },
+        {
+          "low_bpm": 131,
+          "seconds": 0,
+          "zone": 2
+        },
+        {
+          "low_bpm": 144,
+          "seconds": 0,
+          "zone": 3
+        },
+        {
+          "low_bpm": 156,
+          "seconds": 0,
+          "zone": 4
+        },
+        {
+          "low_bpm": 169,
+          "seconds": 0,
+          "zone": 5
+        }
+      ],
+      "id": "24927814089",
+      "max_hr": 112,
+      "moving_time": 377.0,
+      "name": "Sidoarjo Cycling",
+      "raw_type": "cycling",
+      "splits": [
+        {
+          "avg_hr": 99,
+          "avg_speed_mps": 3.273,
+          "distance": 1259.2,
+          "duration": 377.0,
+          "elevation_gain": 9.0,
+          "max_hr": 112,
+          "pace_secs_per_km": 306
+        }
+      ],
+      "start_date_local": "2026-11-01T18:41:17",
+      "type": "Ride"
+    },
+    {
       "aerobic_te": 2.8,
       "avg_cadence": 155,
       "avg_ground_contact": 301,
@@ -42,7 +96,7 @@
       "id": "24922146553",
       "max_hr": 164,
       "moving_time": 2699.6,
-      "name": "Sidoarjo Running",
+      "name": "Training Sesi # 29 - Easy Run",
       "raw_type": "running",
       "splits": [
         {
@@ -29412,7 +29466,7 @@
       "type": "WeightTraining"
     }
   ],
-  "generated_at": "2026-11-01T08:31:55.006467+00:00",
+  "generated_at": "2026-11-01T13:53:01.567571+00:00",
   "source": "garmin",
   "units": {
     "distance": "km",

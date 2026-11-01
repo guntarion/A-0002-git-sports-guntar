@@ -8705,12 +8705,30 @@
     "id": "24922146553",
     "max_hr": 164,
     "moving_time": 2699.6209869384766,
-    "name": "Sidoarjo Running",
+    "name": "Training Sesi # 29 - Easy Run",
     "raw_activity_type": "running",
     "raw_type": "running",
     "start_date_local": "2026-11-01T04:35:01",
     "type": "Run",
     "vo2_max": 41.0,
+    "year": 2026
+  },
+  {
+    "aerobic_te": 0.2,
+    "avg_hr": 99,
+    "avg_speed_mps": 3.273,
+    "calories": 28,
+    "date": "2026-11-01",
+    "distance": 1259.2099609375,
+    "elevation_gain": 9.0,
+    "id": "24927814089",
+    "max_hr": 112,
+    "moving_time": 377.0,
+    "name": "Sidoarjo Cycling",
+    "raw_activity_type": "cycling",
+    "raw_type": "cycling",
+    "start_date_local": "2026-11-01T18:41:17",
+    "type": "Ride",
     "year": 2026
   }
 ]
