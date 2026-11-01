@@ -321,9 +321,13 @@ function renderAIEntry(entry){
 function renderAI(){
   var panel=document.getElementById('aiPanel');
   var entry=S.aiHistIdx>=0&&S.aiHistory[S.aiHistIdx]?S.aiHistory[S.aiHistIdx]:S.ai;
-  if(!entry||!entry.insights){panel.innerHTML='';return;}
+  var gen='<button class="ai-hist-toggle" id="aiGenBtn" style="margin:0 0 12px">'+(S.ai&&S.ai.insights?'↻ Regenerate Coach report':'✨ Generate Coach report')+'</button><span id="aiGenMsg" style="font-size:11px;margin-left:8px;color:var(--muted)"></span>';
+  if(!entry||!entry.insights){
+    panel.innerHTML='<div class="ai-panel"><div class="ai-header"><div class="ai-avatar">🏃</div><div><div class="ai-name">Coach RunAnalytica</div><div class="ai-updated">On demand — no report yet</div></div></div>'+gen+'</div>';
+    wireGen();return;
+  }
 
-  var html='<div class="ai-panel">';
+  var html='<div class="ai-panel">'+gen;
   // History indicator
   if(S.aiHistIdx>=0){
     html+='<div style="font-size:10px;color:var(--muted);margin-bottom:8px;display:flex;align-items:center;gap:6px"><span style="background:var(--purple);color:#fff;padding:1px 8px;border-radius:10px;font-weight:700">PAST</span> Viewing archived insight</div>';
@@ -348,6 +352,7 @@ function renderAI(){
   html+='</div>';
   panel.innerHTML=html;
 
+  wireGen();
   // Wire up toggle
   var tog=document.getElementById('aiHistToggle');
   if(tog)tog.addEventListener('click',function(){S.aiHistOpen=!S.aiHistOpen;renderAI();});
@@ -381,6 +386,34 @@ function renderAI(){
       });
     });
   }
+}
+
+function wireGen(){
+  var b=document.getElementById('aiGenBtn'),msg=document.getElementById('aiGenMsg');
+  if(!b)return;
+  b.addEventListener('click',function(){
+    var label=b.textContent;b.disabled=true;b.textContent='Analysing…';
+    msg.style.color='var(--muted)';msg.textContent='Takes about 10–30 seconds.';
+    var ready=(window.GS&&window.GS.ready)?window.GS.ready():Promise.resolve();
+    ready.then(function(){
+      var tok='';try{tok=localStorage.getItem('gs_api_token')||'';}catch(e){}
+      return fetch('/api/analyze?kind=coach&days=180&force=1',{method:'POST',headers:{Authorization:'Bearer '+tok}});
+    }).then(function(r){return r.json().then(function(j){return{ok:r.ok,j:j};});})
+    .then(function(res){
+      if(!res.ok)throw new Error(res.j.detail||res.j.error||'failed');
+      if(!res.j.analysis)throw new Error(res.j.detail||'No running data');
+      S.ai={generated_at:res.j.generated_at,insights:res.j.analysis};S.aiHistIdx=-1;renderAI();
+    }).catch(function(e){
+      b.disabled=false;b.textContent=label;msg.style.color='var(--red)';msg.textContent='Could not generate: '+e.message;
+    });
+  });
+}
+
+function loadSavedCoach(){
+  return fetch('/api/analyze?kind=coach&days=180').then(function(r){return r.ok?r.json():null;}).then(function(j){
+    if(j&&j.analysis)return{generated_at:j.generated_at,insights:j.analysis};
+    return null;
+  }).catch(function(){return null;});
 }
 
 /* ── Main render ── */
@@ -568,7 +601,11 @@ Promise.all([
   var yf=document.getElementById('yearFilters');
   yf.innerHTML='<button class="fbtn active" data-year="all">All</button>'+years.map(function(y){return'<button class="fbtn" data-year="'+y+'">'+y+'</button>';}).join('');
   yf.querySelectorAll('[data-year]').forEach(function(b){b.addEventListener('click',function(){yf.querySelectorAll('[data-year]').forEach(function(x){x.classList.remove('active');});b.classList.add('active');S.year=b.dataset.year;render();});});
-  renderAI();render();
+  return loadSavedCoach().then(function(c){
+    // The on-demand report supersedes the frozen daily JSON when it is newer.
+    if(c&&(!S.ai||!S.ai.generated_at||c.generated_at>=S.ai.generated_at))S.ai=c;
+    renderAI();render();
+  });
 }).catch(function(err){
   document.getElementById('content').innerHTML='<div class="error-msg">Could not load data<br>'+err.message+'</div>';
 });

@@ -11,8 +11,12 @@ import { query } from './_lib/db.js';
 import { requireAuth, sendJson } from './_lib/http.js';
 import { buildAnalysisInput, fingerprint } from './_lib/analysis-input.js';
 import { performancePrompt, analyticsPrompt } from './_lib/analysis-prompts.js';
+import { buildCoachInput } from './_lib/coach-input.js';
+import { coachPrompt } from './_lib/coach-prompt.js';
 
-const KINDS = { performance: performancePrompt, analytics: analyticsPrompt };
+const KINDS = { performance: performancePrompt, analytics: analyticsPrompt, coach: coachPrompt };
+// The AI Coach reasons over monthly running stats too, so it has its own input.
+const buildInput = (kind, days) => (kind === 'coach' ? buildCoachInput() : buildAnalysisInput(days));
 const COOLDOWN_MINUTES = 10;
 const QWEN_ENDPOINT = process.env.QWEN_ENDPOINT
   || 'https://dashscope-intl.aliyuncs.com/compatible-mode/v1/chat/completions';
@@ -92,7 +96,7 @@ export default async function handler(req, res) {
       // Tell the UI whether the underlying data moved since this was written.
       let stale = false;
       try {
-        const input = await buildAnalysisInput(days);
+        const input = await buildInput(kind, days);
         stale = fingerprint(input) !== cached.inputs_fingerprint;
       } catch { /* staleness is advisory only */ }
       return sendJson(res, 200, { ...cached, stale });
@@ -121,7 +125,7 @@ export default async function handler(req, res) {
       }
     }
 
-    const input = await buildAnalysisInput(days);
+    const input = await buildInput(kind, days);
     if (!input.running_economy && !Object.keys(input.metrics || {}).length) {
       return sendJson(res, 200, { kind, period: key, analysis: null, detail: 'No data in this period.' });
     }
