@@ -44,3 +44,4 @@ icon-pngs.json
 # Personal health exports — never commit
 exports/
 health_export_*.csv
+.env*

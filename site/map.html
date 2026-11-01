@@ -96,6 +96,7 @@
     .leaflet-popup-content b{font-size:12px}
     .leaflet-bar a{background:var(--card);color:var(--text);border-color:var(--border)}
     .leaflet-bar a:hover{background:var(--card2)}
+    .dark-tiles{filter:invert(1) hue-rotate(180deg) brightness(.85) contrast(.9) saturate(.6)}
     .leaflet-control-attribution{background:rgba(15,23,42,.8)!important;color:var(--muted)!important;font-size:9px}
     .leaflet-control-attribution a{color:var(--muted)!important}
 
@@ -190,9 +191,9 @@
     map = L.map('map', { zoomControl: true, attributionControl: true, preferCanvas: false })
            .setView([-7.35, 112.75], 10);
     // Dark basemap so the routes carry the colour, not the terrain.
-    L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
-      attribution: '&copy; OpenStreetMap &copy; CARTO',
-      subdomains: 'abcd', maxZoom: 19
+    L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: '&copy; OpenStreetMap contributors',
+      maxZoom: 19, className: 'dark-tiles'
     }).addTo(map);
     layerGroup = L.layerGroup().addTo(map);
   }
