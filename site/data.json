@@ -3100,6 +3100,27 @@
       "subtype": "running",
       "type": "Run",
       "year": 2026
+    },
+    {
+      "date": "2026-11-04",
+      "hour": 16,
+      "subtype": "jump_rope",
+      "type": "jump_rope",
+      "year": 2026
+    },
+    {
+      "date": "2026-11-04",
+      "hour": 16,
+      "subtype": "strength_training",
+      "type": "WeightTraining",
+      "year": 2026
+    },
+    {
+      "date": "2026-11-05",
+      "hour": 5,
+      "subtype": "running",
+      "type": "Run",
+      "year": 2026
     }
   ],
   "aggregates": {
@@ -4626,6 +4647,15 @@
           "distance": 6447.8798828125,
           "elevation_gain": 2.0,
           "moving_time": 2774.5380249023438
+        },
+        "2026-11-05": {
+          "activity_ids": [
+            "24969340847"
+          ],
+          "count": 1,
+          "distance": 4382.2998046875,
+          "elevation_gain": 64.0,
+          "moving_time": 1846.9520111083984
         }
       },
       "TrailRun": {
@@ -6326,6 +6356,15 @@
           "distance": 0.0,
           "elevation_gain": 0.0,
           "moving_time": 1800.5899658203125
+        },
+        "2026-11-04": {
+          "activity_ids": [
+            "24961507729"
+          ],
+          "count": 1,
+          "distance": 0.0,
+          "elevation_gain": 0.0,
+          "moving_time": 1200.7449951171875
         }
       },
       "Workout": {
@@ -6671,6 +6710,15 @@
           "distance": 0.0,
           "elevation_gain": 0.0,
           "moving_time": 203.63999938964844
+        },
+        "2026-11-04": {
+          "activity_ids": [
+            "24961294774"
+          ],
+          "count": 1,
+          "distance": 0.0,
+          "elevation_gain": 0.0,
+          "moving_time": 215.36000061035156
         }
       },
       "meditation": {
@@ -6737,7 +6785,7 @@
       }
     }
   },
-  "generated_at": "2026-11-04T08:24:59.321576+00:00",
+  "generated_at": "2026-11-05T08:50:51.393957+00:00",
   "other_bucket": "OtherSports",
   "repo": "guntarion/A-0002-git-sports-guntar",
   "source": "garmin",
