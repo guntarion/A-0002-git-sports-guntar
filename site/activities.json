@@ -1,6 +1,174 @@
 {
   "activities": [
     {
+      "aerobic_te": 0.1,
+      "avg_cadence": 91,
+      "avg_hr": 77,
+      "avg_pace_secs_per_km": 903,
+      "avg_stride_len": 72.95,
+      "calories": 27,
+      "date": "2026-11-06",
+      "distance": 433.7,
+      "elevation_gain": 7.0,
+      "hr_zones": [
+        {
+          "low_bpm": 57,
+          "seconds": 392,
+          "zone": 1
+        },
+        {
+          "low_bpm": 131,
+          "seconds": 0,
+          "zone": 2
+        },
+        {
+          "low_bpm": 144,
+          "seconds": 0,
+          "zone": 3
+        },
+        {
+          "low_bpm": 156,
+          "seconds": 0,
+          "zone": 4
+        },
+        {
+          "low_bpm": 169,
+          "seconds": 0,
+          "zone": 5
+        }
+      ],
+      "id": "24982292316",
+      "max_hr": 100,
+      "moving_time": 386.0,
+      "name": "Jakarta Walking",
+      "raw_type": "walking",
+      "splits": [
+        {
+          "avg_hr": 77,
+          "avg_speed_mps": 1.108,
+          "distance": 433.7,
+          "duration": 386.0,
+          "elevation_gain": 7.0,
+          "max_hr": 100,
+          "pace_secs_per_km": 903
+        }
+      ],
+      "start_date_local": "2026-11-06T03:48:10",
+      "type": "Walk"
+    },
+    {
+      "aerobic_te": 0.3,
+      "avg_cadence": 90,
+      "avg_hr": 96,
+      "avg_pace_secs_per_km": 829,
+      "avg_stride_len": 79.8,
+      "calories": 60,
+      "date": "2026-11-05",
+      "distance": 932.8,
+      "elevation_gain": 15.0,
+      "hr_zones": [
+        {
+          "low_bpm": 57,
+          "seconds": 773,
+          "zone": 1
+        },
+        {
+          "low_bpm": 131,
+          "seconds": 0,
+          "zone": 2
+        },
+        {
+          "low_bpm": 144,
+          "seconds": 0,
+          "zone": 3
+        },
+        {
+          "low_bpm": 156,
+          "seconds": 0,
+          "zone": 4
+        },
+        {
+          "low_bpm": 169,
+          "seconds": 0,
+          "zone": 5
+        }
+      ],
+      "id": "24975293662",
+      "max_hr": 112,
+      "moving_time": 764.0,
+      "name": "Jakarta Walking",
+      "raw_type": "walking",
+      "splits": [
+        {
+          "avg_hr": 96,
+          "avg_speed_mps": 1.207,
+          "distance": 932.8,
+          "duration": 764.0,
+          "elevation_gain": 15.0,
+          "max_hr": 112,
+          "pace_secs_per_km": 829
+        }
+      ],
+      "start_date_local": "2026-11-05T17:52:24",
+      "type": "Walk",
+      "vo2_max": 41.0
+    },
+    {
+      "aerobic_te": 0.1,
+      "avg_cadence": 91,
+      "avg_hr": 97,
+      "avg_pace_secs_per_km": 849,
+      "avg_stride_len": 76.85,
+      "calories": 29,
+      "date": "2026-11-05",
+      "distance": 465.0,
+      "elevation_gain": 0.0,
+      "hr_zones": [
+        {
+          "low_bpm": 57,
+          "seconds": 395,
+          "zone": 1
+        },
+        {
+          "low_bpm": 131,
+          "seconds": 0,
+          "zone": 2
+        },
+        {
+          "low_bpm": 144,
+          "seconds": 0,
+          "zone": 3
+        },
+        {
+          "low_bpm": 156,
+          "seconds": 0,
+          "zone": 4
+        },
+        {
+          "low_bpm": 169,
+          "seconds": 0,
+          "zone": 5
+        }
+      ],
+      "id": "24973325433",
+      "max_hr": 103,
+      "moving_time": 388.0,
+      "name": "Jakarta Walking",
+      "raw_type": "walking",
+      "splits": [
+        {
+          "avg_hr": 97,
+          "avg_speed_mps": 1.178,
+          "distance": 465.0,
+          "duration": 388.0,
+          "max_hr": 103,
+          "pace_secs_per_km": 849
+        }
+      ],
+      "start_date_local": "2026-11-05T17:14:53",
+      "type": "Walk"
+    },
+    {
       "aerobic_te": 3.3,
       "avg_cadence": 157,
       "avg_ground_contact": 282,
@@ -29854,7 +30022,7 @@
       "type": "WeightTraining"
     }
   ],
-  "generated_at": "2026-11-05T08:51:09.928578+00:00",
+  "generated_at": "2026-11-06T08:50:16.375118+00:00",
   "source": "garmin",
   "units": {
     "distance": "km",
