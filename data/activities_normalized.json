@@ -8890,5 +8890,26 @@
     "start_date_local": "2026-11-06T03:48:10",
     "type": "Walk",
     "year": 2026
+  },
+  {
+    "aerobic_te": 0.6,
+    "avg_cadence": 100,
+    "avg_hr": 97,
+    "avg_speed_mps": 1.296,
+    "avg_stride_len": 77.32,
+    "calories": 124,
+    "date": "2026-11-06",
+    "distance": 1926.8299560546875,
+    "elevation_gain": 10.0,
+    "id": "24984946099",
+    "max_hr": 109,
+    "moving_time": 1479.0,
+    "name": "Jakarta Walking",
+    "raw_activity_type": "walking",
+    "raw_type": "walking",
+    "start_date_local": "2026-11-06T17:26:52",
+    "type": "Walk",
+    "vo2_max": 41.0,
+    "year": 2026
   }
 ]
