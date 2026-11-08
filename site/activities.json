@@ -1,6 +1,150 @@
 {
   "activities": [
     {
+      "aerobic_te": 3.9,
+      "anaerobic_te": 1.1,
+      "avg_cadence": 154,
+      "avg_ground_contact": 282,
+      "avg_hr": 171,
+      "avg_pace_secs_per_km": 415,
+      "avg_stride_len": 94.71,
+      "avg_vertical_osc": 8.5,
+      "calories": 408,
+      "date": "2026-11-08",
+      "distance": 5010.5,
+      "elevation_gain": 79.0,
+      "hr_zones": [
+        {
+          "low_bpm": 57,
+          "seconds": 0,
+          "zone": 1
+        },
+        {
+          "low_bpm": 132,
+          "seconds": 0,
+          "zone": 2
+        },
+        {
+          "low_bpm": 144,
+          "seconds": 0,
+          "zone": 3
+        },
+        {
+          "low_bpm": 156,
+          "seconds": 732,
+          "zone": 4
+        },
+        {
+          "low_bpm": 169,
+          "seconds": 1349,
+          "zone": 5
+        }
+      ],
+      "id": "25002906031",
+      "max_hr": 185,
+      "moving_time": 2077.7,
+      "name": "Surabaya Running",
+      "raw_type": "running",
+      "splits": [
+        {
+          "avg_hr": 163,
+          "avg_speed_mps": 2.47,
+          "distance": 1000.0,
+          "duration": 404.9,
+          "max_hr": 169,
+          "pace_secs_per_km": 405
+        },
+        {
+          "avg_hr": 168,
+          "avg_speed_mps": 2.446,
+          "distance": 1000.0,
+          "duration": 408.9,
+          "elevation_gain": 1.0,
+          "max_hr": 173,
+          "pace_secs_per_km": 409
+        },
+        {
+          "avg_hr": 171,
+          "avg_speed_mps": 2.326,
+          "distance": 1000.0,
+          "duration": 429.9,
+          "elevation_gain": 20.0,
+          "max_hr": 178,
+          "pace_secs_per_km": 430
+        },
+        {
+          "avg_hr": 174,
+          "avg_speed_mps": 2.388,
+          "distance": 1000.0,
+          "duration": 418.0,
+          "elevation_gain": 26.0,
+          "max_hr": 179,
+          "pace_secs_per_km": 419
+        },
+        {
+          "avg_hr": 177,
+          "avg_speed_mps": 2.407,
+          "distance": 1000.0,
+          "duration": 414.0,
+          "elevation_gain": 32.0,
+          "max_hr": 185,
+          "pace_secs_per_km": 415
+        },
+        {
+          "avg_hr": 184,
+          "avg_speed_mps": 3.01,
+          "distance": 10.5,
+          "duration": 2.0,
+          "max_hr": 184,
+          "pace_secs_per_km": 332
+        }
+      ],
+      "start_date_local": "2026-11-08T06:03:27",
+      "type": "Run",
+      "vo2_max": 41.0
+    },
+    {
+      "avg_hr": 76,
+      "calories": 28,
+      "date": "2026-11-07",
+      "distance": 0.0,
+      "elevation_gain": 0.0,
+      "hr_zones": [
+        {
+          "low_bpm": 57,
+          "seconds": 711,
+          "zone": 1
+        },
+        {
+          "low_bpm": 131,
+          "seconds": 0,
+          "zone": 2
+        },
+        {
+          "low_bpm": 144,
+          "seconds": 0,
+          "zone": 3
+        },
+        {
+          "low_bpm": 156,
+          "seconds": 0,
+          "zone": 4
+        },
+        {
+          "low_bpm": 169,
+          "seconds": 0,
+          "zone": 5
+        }
+      ],
+      "id": "24994564868",
+      "max_hr": 98,
+      "moving_time": 722.1,
+      "name": "Strength",
+      "raw_type": "strength_training",
+      "start_date_local": "2026-11-07T16:11:47",
+      "type": "WeightTraining"
+    },
+    {
       "aerobic_te": 0.6,
       "avg_cadence": 100,
       "avg_hr": 97,
@@ -30096,7 +30240,7 @@
       "type": "WeightTraining"
     }
   ],
-  "generated_at": "2026-11-07T08:07:33.283626+00:00",
+  "generated_at": "2026-11-08T08:26:36.986086+00:00",
   "source": "garmin",
   "units": {
     "distance": "km",
