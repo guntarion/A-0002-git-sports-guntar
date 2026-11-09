@@ -43,7 +43,7 @@
       "id": "25002906031",
       "max_hr": 185,
       "moving_time": 2077.7,
-      "name": "Surabaya Running",
+      "name": "Kapolrestabes Justice Run",
       "raw_type": "running",
       "splits": [
         {
@@ -30240,7 +30240,7 @@
       "type": "WeightTraining"
     }
   ],
-  "generated_at": "2026-11-08T08:26:36.986086+00:00",
+  "generated_at": "2026-11-09T08:56:16.101322+00:00",
   "source": "garmin",
   "units": {
     "distance": "km",
