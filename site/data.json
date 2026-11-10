@@ -3163,6 +3163,27 @@
       "subtype": "running",
       "type": "Run",
       "year": 2026
+    },
+    {
+      "date": "2026-11-09",
+      "hour": 16,
+      "subtype": "strength_training",
+      "type": "WeightTraining",
+      "year": 2026
+    },
+    {
+      "date": "2026-11-09",
+      "hour": 17,
+      "subtype": "cycling",
+      "type": "Ride",
+      "year": 2026
+    },
+    {
+      "date": "2026-11-10",
+      "hour": 6,
+      "subtype": "running",
+      "type": "Run",
+      "year": 2026
     }
   ],
   "aggregates": {
@@ -3746,6 +3767,15 @@
           "distance": 1259.2099609375,
           "elevation_gain": 9.0,
           "moving_time": 377.0
+        },
+        "2026-11-09": {
+          "activity_ids": [
+            "25017743586"
+          ],
+          "count": 1,
+          "distance": 719.1199951171875,
+          "elevation_gain": 27.0,
+          "moving_time": 235.0
         }
       },
       "Run": {
@@ -4707,6 +4737,15 @@
           "distance": 5010.509765625,
           "elevation_gain": 79.0,
           "moving_time": 2077.68701171875
+        },
+        "2026-11-10": {
+          "activity_ids": [
+            "25025511118"
+          ],
+          "count": 1,
+          "distance": 5014.68017578125,
+          "elevation_gain": 208.0,
+          "moving_time": 2036.3410034179688
         }
       },
       "TrailRun": {
@@ -6445,6 +6484,15 @@
           "distance": 0.0,
           "elevation_gain": 0.0,
           "moving_time": 722.0880126953125
+        },
+        "2026-11-09": {
+          "activity_ids": [
+            "25017397077"
+          ],
+          "count": 1,
+          "distance": 0.0,
+          "elevation_gain": 0.0,
+          "moving_time": 600.5709838867188
         }
       },
       "Workout": {
@@ -6865,7 +6913,7 @@
       }
     }
   },
-  "generated_at": "2026-11-09T08:56:16.069294+00:00",
+  "generated_at": "2026-11-10T09:03:08.344764+00:00",
   "other_bucket": "OtherSports",
   "repo": "guntarion/A-0002-git-sports-guntar",
   "source": "garmin",
