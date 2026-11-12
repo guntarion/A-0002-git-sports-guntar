@@ -9027,5 +9027,28 @@
     "start_date_local": "2026-11-11T08:23:09",
     "type": "WeightTraining",
     "year": 2026
+  },
+  {
+    "aerobic_te": 2.3,
+    "avg_cadence": 153,
+    "avg_ground_contact": 295,
+    "avg_hr": 123,
+    "avg_speed_mps": 1.864,
+    "avg_stride_len": 72.13,
+    "avg_vertical_osc": 7.3,
+    "calories": 305,
+    "date": "2026-11-12",
+    "distance": 4372.85986328125,
+    "elevation_gain": 132.0,
+    "id": "25048654683",
+    "max_hr": 144,
+    "moving_time": 2334.614990234375,
+    "name": "Training Sesi #33 - Easy Recovery",
+    "raw_activity_type": "running",
+    "raw_type": "running",
+    "start_date_local": "2026-11-12T04:44:19",
+    "type": "Run",
+    "vo2_max": 41.0,
+    "year": 2026
   }
 ]
