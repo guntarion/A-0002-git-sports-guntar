@@ -9004,6 +9004,7 @@
     "max_hr": 184,
     "moving_time": 2036.3410034179688,
     "name": "Training Sesi # 32 - Tempo Run",
+    "note": "SE = 55 \ud83d\ude05 tp emang narget PB\nPas event kemarin gagal krn kecapekan (HRV 7 hari terakhir rendah) dan terpapar panas lebih lama. Skr bisa retain running krn HR masih aman.",
     "raw_activity_type": "running",
     "raw_type": "running",
     "start_date_local": "2026-11-10T06:10:51",
@@ -9044,6 +9045,7 @@
     "max_hr": 144,
     "moving_time": 2334.614990234375,
     "name": "Training Sesi #33 - Easy Recovery",
+    "note": "Linu capek dari 2 sesi race baru kerasa. Nyeri di tulang kering kanan dan selangkangan. Dipake 160-165 SPM just to maintain pace 8. Diawali dan diakhiri dg jalan, gak full sesi.\n\nSE = 57, VO2max surprisingly gak dipenalti, tetap 43. \n\n60% zone 1 40% Zone 2",
     "raw_activity_type": "running",
     "raw_type": "running",
     "start_date_local": "2026-11-12T04:44:19",
@@ -9084,6 +9086,24 @@
     "raw_type": "strength_training",
     "start_date_local": "2026-11-13T08:58:23",
     "type": "WeightTraining",
+    "year": 2026
+  },
+  {
+    "aerobic_te": 0.2,
+    "avg_hr": 99,
+    "avg_speed_mps": 3.485,
+    "calories": 66,
+    "date": "2026-11-13",
+    "distance": 3072.72998046875,
+    "elevation_gain": 12.0,
+    "id": "25063720976",
+    "max_hr": 113,
+    "moving_time": 868.0,
+    "name": "Sidoarjo Cycling",
+    "raw_activity_type": "cycling",
+    "raw_type": "cycling",
+    "start_date_local": "2026-11-13T17:34:29",
+    "type": "Ride",
     "year": 2026
   }
 ]
