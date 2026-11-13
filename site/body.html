@@ -1,0 +1,565 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Body | Garmin Git</title>
+  <link rel="icon" type="image/svg+xml" href="icon.svg" />
+  <link rel="icon" type="image/png" sizes="192x192" href="icon-192.png" />
+  <link rel="apple-touch-icon" href="apple-touch-icon.png" />
+  <link rel="manifest" href="manifest.json" />
+  <meta name="apple-mobile-web-app-title" content="Garmin Git" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="theme-color" content="#0f172a" />
+  <meta name="robots" content="noindex" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet" />
+  <style>
+    :root{
+      --bg:#0f172a;--card:#1e293b;--card2:#243048;--border:#334155;
+      --text:#f1f5f9;--muted:#94a3b8;--accent:#00bbf9;
+      /* Series colours. Systolic/diastolic are an orange/blue pair (never red/green);
+         the five BP categories run blue -> teal -> amber -> orange -> magenta. */
+      --sys:#e8743b; --dia:#3b9eff; --wt:#9085e9; --trend:#00bbf9; --map:#199e70; --pp:#c98500;
+      --c-normal:#3987e5; --c-elevated:#5ec4b6; --c-stage1:#e5b83a; --c-stage2:#e8743b; --c-crisis:#d55181;
+      --sev-penting:#d55181; --sev-perhatian:#e5b83a; --sev-info:#3987e5;
+    }
+    *{margin:0;padding:0;box-sizing:border-box}
+    body{background:var(--bg);color:var(--text);font-family:'JetBrains Mono',ui-monospace,monospace;font-size:13px;min-height:100vh;padding:0 0 70px}
+    header{background:var(--card);border-bottom:1px solid var(--border);padding:14px 24px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;position:sticky;top:0;z-index:20}
+    .header-title{font-size:15px;font-weight:700}
+    .header-nav a{color:var(--muted);text-decoration:none;font-size:12px;border:1px solid var(--border);padding:5px 12px;border-radius:6px;margin-left:6px;display:inline-block}
+    .page-body{max-width:1180px;margin:0 auto;padding:20px 16px}
+
+    .filters{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-bottom:12px}
+    .filter-label{color:var(--muted);font-size:11px;margin-right:4px}
+    .fbtn{background:transparent;border:1px solid var(--border);color:var(--muted);font-family:inherit;font-size:11px;padding:4px 12px;border-radius:20px;cursor:pointer;transition:.15s}
+    .fbtn:hover{border-color:var(--accent);color:var(--text)}
+    .fbtn.active{background:var(--accent);border-color:var(--accent);color:#000;font-weight:700}
+    .asof{margin-left:auto;font-size:10px;color:var(--muted)}
+
+    .disclaimer{font-size:10px;color:var(--muted);line-height:1.6;border:1px dashed var(--border);border-radius:9px;padding:8px 12px;margin-bottom:14px}
+    .alert{border:1px solid var(--sev-penting);background:rgba(213,81,129,.12);border-radius:10px;padding:12px 14px;margin-bottom:14px;font-size:12px;line-height:1.6}
+    .alert b{color:var(--sev-penting)}
+
+    .tiles{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px;margin-bottom:8px}
+    .tile{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:13px 15px;position:relative;overflow:hidden}
+    .tile::after{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--tc,var(--accent))}
+    .tile .t-label{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.05em}
+    .tile .t-value{font-size:22px;font-weight:700;margin-top:6px;line-height:1.05}
+    .tile .t-unit{font-size:11px;color:var(--muted);font-weight:400}
+    .tile .t-meta{font-size:10px;color:var(--muted);margin-top:4px;line-height:1.4}
+
+    .sec-title{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin:28px 0 10px;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+    .sec-sub{margin-left:auto;font-size:10px;font-weight:400;text-transform:none;letter-spacing:0}
+
+    .insights{display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:10px}
+    .ins{background:var(--card);border:1px solid var(--border);border-left:3px solid var(--sc,var(--sev-info));border-radius:10px;padding:11px 14px}
+    .ins .i-title{font-size:12px;font-weight:700;line-height:1.4}
+    .ins .i-text{font-size:11px;color:var(--muted);margin-top:5px;line-height:1.6}
+    .ins .i-sev{font-size:9px;text-transform:uppercase;letter-spacing:.06em;color:var(--sc,var(--sev-info));margin-bottom:3px}
+
+    .card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:16px 16px 10px;margin-bottom:12px}
+    .card-head{display:flex;align-items:baseline;justify-content:space-between;gap:10px;flex-wrap:wrap}
+    .card-title{font-size:13px;font-weight:700;display:flex;align-items:center;gap:8px}
+    .card-note{font-size:10px;color:var(--muted);margin-top:2px;line-height:1.5}
+    .card-latest{font-size:13px;font-weight:700}
+    .dot-title{width:9px;height:9px;border-radius:50%;flex:0 0 9px}
+    .grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(340px,1fr));gap:12px}
+
+    svg.chart{width:100%;height:auto;display:block;overflow:visible;margin-top:10px}
+    .grid-line{stroke:rgba(255,255,255,.06);stroke-width:1}
+    .axis-text{fill:var(--muted);font-size:9px;font-family:inherit}
+    .series-line{fill:none;stroke-linejoin:round;stroke-linecap:round}
+    .ref-line{stroke:var(--muted);stroke-width:1;stroke-dasharray:3 3;opacity:.55}
+    .pt{stroke:var(--card);stroke-width:1.5;cursor:pointer}
+    .legend{display:flex;gap:13px;font-size:10px;color:var(--muted);margin-top:8px;flex-wrap:wrap}
+    .legend span{display:flex;align-items:center;gap:5px}
+    .sw{width:10px;height:10px;border-radius:3px;flex:0 0 10px}
+    .sw.circ{border-radius:50%}
+
+    .tip{position:absolute;pointer-events:none;background:#0b1220;border:1px solid var(--border);border-radius:7px;padding:7px 10px;font-size:11px;white-space:nowrap;opacity:0;transition:opacity .12s;z-index:9;line-height:1.5}
+    .wrap{position:relative}
+
+    .cat-row{display:grid;grid-template-columns:64px 1fr 34px;gap:8px;align-items:center;margin:7px 0;font-size:10px;color:var(--muted)}
+    .cat-bar{display:flex;height:16px;border-radius:5px;overflow:hidden;background:var(--card2)}
+    .cat-bar i{display:block;height:100%}
+
+    .xitem{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:13px 15px}
+    .xitem .x-title{font-size:12px;font-weight:700;line-height:1.4}
+    .badge{display:inline-block;font-size:9px;text-transform:uppercase;letter-spacing:.05em;padding:2px 8px;border-radius:10px;margin-bottom:6px;border:1px solid var(--border);color:var(--muted)}
+    .badge.found{color:#000;background:var(--accent);border-color:var(--accent);font-weight:700}
+    .badge.weak{color:var(--text)}
+    .xitem .x-text{font-size:11px;color:var(--muted);line-height:1.6;margin-top:6px}
+    .xitem .x-caution{font-size:10px;color:var(--sev-perhatian);line-height:1.5;margin-top:6px}
+    .vo2{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px;margin-top:8px}
+    .vo2 div{background:var(--card2);border-radius:9px;padding:9px 11px}
+    .vo2 b{display:block;font-size:17px;margin-top:3px}
+    .vo2 span{font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:.05em}
+
+    table.tbl{width:100%;border-collapse:collapse;font-size:11px}
+    table.tbl th{color:var(--muted);font-weight:400;font-size:10px;text-transform:uppercase;text-align:left;padding:6px 8px;border-bottom:1px solid var(--border)}
+    table.tbl td{padding:6px 8px;border-bottom:1px solid rgba(255,255,255,.05)}
+    .cat-dot{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:6px}
+    details.defs{margin-top:20px;border:1px solid var(--border);border-radius:10px;padding:10px 14px;font-size:11px;color:var(--muted);line-height:1.7}
+    details.defs summary{cursor:pointer;color:var(--text);font-weight:700}
+    details.defs p{margin-top:8px}
+
+    .aibtn{background:var(--accent);color:#000;border:0;border-radius:8px;font-family:inherit;font-weight:700;font-size:12px;padding:7px 16px;cursor:pointer}
+    .aibtn:disabled{opacity:.55;cursor:wait}
+    .ai-h{font-size:10px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin:14px 0 5px}
+    .ai-p{font-size:12px;line-height:1.7}
+    .ai ul{margin:4px 0 0 18px;font-size:11px;line-height:1.7;color:var(--text)}
+    .ai-stale{color:var(--sev-perhatian);font-size:10px}
+    .ai-note{font-size:10px;color:var(--muted);line-height:1.6;margin:8px 0 10px}
+    .ai-conn{border-top:1px solid rgba(255,255,255,.07);padding:8px 0;font-size:11px;line-height:1.6}
+    .ai-conn b{font-size:12px}
+    .empty{color:var(--muted);font-size:11px;padding:26px 0;text-align:center}
+    .gate{display:flex;align-items:center;justify-content:center;flex-direction:column;gap:10px;text-align:center;padding:70px 24px}
+    .gate .g-icon{font-size:30px}
+    .gate .g-title{font-size:14px;font-weight:700}
+    .gate .g-sub{font-size:11px;color:var(--muted);max-width:420px;line-height:1.6}
+    .gate button{background:var(--accent);color:#000;border:0;border-radius:8px;font-family:inherit;font-weight:700;font-size:12px;padding:8px 18px;cursor:pointer}
+    @media (max-width:760px){.axis-text{font-size:12px}.page-body{padding:14px 12px}.grid2{grid-template-columns:1fr}.insights{grid-template-columns:1fr}}
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="header-title">Body</div>
+  <nav class="header-nav"></nav>
+</header>
+
+<div class="page-body">
+  <div id="gate" class="gate">
+    <div class="g-icon">🔒</div>
+    <div class="g-title">Data pribadi</div>
+    <div class="g-sub">Berat badan dan tekanan darah bersifat pribadi. Masukkan kata sandi akses untuk membukanya di perangkat ini.</div>
+    <button id="unlockBtn">Buka</button>
+  </div>
+  <div id="main" style="display:none">
+    <div class="filters">
+      <span class="filter-label">Rentang</span>
+      <button class="fbtn" data-days="90">3B</button>
+      <button class="fbtn active" data-days="180">6B</button>
+      <button class="fbtn" data-days="365">1T</button>
+      <button class="fbtn" data-days="0">Semua</button>
+      <span class="asof" id="asof"></span>
+    </div>
+    <div class="disclaimer">Informasi ini bersifat deskriptif dan <b>bukan diagnosis atau saran medis</b>. Hubungan antar-metrik adalah korelasi, bukan bukti sebab-akibat. Bicarakan perubahan tensi atau berat badan yang bermakna dengan dokter.</div>
+    <div id="content"></div>
+  </div>
+</div>
+
+<script src="storage.js"></script>
+<script>
+(function () {
+  'use strict';
+  var API = (window.GS_API_BASE || '/api').replace(/\/$/, '');
+  var state = { days: 180, data: null, computed_at: null, ai: null, aiBusy: false, aiMsg: '' };
+  var CAT_COLORS = { normal: 'var(--c-normal)', elevated: 'var(--c-elevated)', stage1: 'var(--c-stage1)', stage2: 'var(--c-stage2)', crisis: 'var(--c-crisis)' };
+  var GAP = 10 * 864e5;   // lines break across gaps longer than this
+  var CAT_ORDER = ['normal', 'elevated', 'stage1', 'stage2', 'crisis'];
+  var SEV_COLORS = { penting: 'var(--sev-penting)', perhatian: 'var(--sev-perhatian)', info: 'var(--sev-info)' };
+  var BMI_COLORS = { underweight: 'var(--c-elevated)', normal: 'var(--c-normal)', at_risk: 'var(--c-stage1)', overweight: 'var(--c-stage1)',
+                     obese: 'var(--c-stage2)', obese1: 'var(--c-stage2)', obese2: 'var(--c-crisis)' };
+
+  function esc(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) { return ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]); }); }
+  function token() { try { return localStorage.getItem('gs_api_token') || ''; } catch (e) { return ''; } }
+  function fmt(v, d) { return v == null ? '—' : Number(v).toFixed(d == null ? 1 : d); }
+  function dayMs(s) { return new Date(s.slice(0, 10) + 'T00:00:00').getTime(); }
+  function tMs(s) { return new Date(s.length > 10 ? s : s + 'T00:00:00').getTime(); }
+  function shortDate(ms) { var d = new Date(ms); return ('0' + d.getDate()).slice(-2) + '/' + ('0' + (d.getMonth() + 1)).slice(-2); }
+  function cutoffMs() {
+    if (!state.days) return -Infinity;
+    return dayMs(state.data.as_of) - state.days * 864e5;
+  }
+  function inRange(dateStr) { return dayMs(dateStr) >= cutoffMs(); }
+
+  /* Round-number axis ticks (1/2/5 x 10^n) within [lo, hi]. */
+  function niceTicks(lo, hi, n) {
+    var raw = (hi - lo) / n, mag = Math.pow(10, Math.floor(Math.log10(raw))), norm = raw / mag;
+    var step = (norm <= 1 ? 1 : norm <= 2 ? 2 : norm <= 5 ? 5 : 10) * mag, ticks = [];
+    for (var v = Math.ceil(lo / step) * step; v <= hi + 1e-9; v += step) ticks.push(+v.toFixed(6));
+    return { step: step, ticks: ticks, dp: step >= 1 ? 0 : step >= 0.1 ? 1 : 2 };
+  }
+
+  /* ── Generic time-series chart ─────────────────────────────────────────────
+     series: [{ color, width, line:bool, pts:[{t(ms), v, tip(html), shape:'c'|'s', r}] }]
+     refs:   [{ v, label, color }]                                                  */
+  function tsChart(o) {
+    var all = []; o.series.forEach(function (s) { s.pts.forEach(function (p) { all.push(p); }); });
+    if (all.length < 2) return '<div class="empty">Data belum cukup</div>';
+    var W = 560, H = o.h || 200, padL = 40, padR = o.padR || 62, padT = 14, padB = 22, xs = W - padL - padR, ys = H - padT - padB;
+    var vals = all.map(function (p) { return p.v; });
+    var lo = Math.min.apply(null, vals), hi = Math.max.apply(null, vals);
+    (o.refs || []).forEach(function (r) { if (r.include) { lo = Math.min(lo, r.v); hi = Math.max(hi, r.v); } });
+    var pad = (hi - lo) * 0.12 || 1; lo -= pad; hi += pad;
+    var t0 = Math.min.apply(null, all.map(function (p) { return p.t; })), t1 = Math.max.apply(null, all.map(function (p) { return p.t; }));
+    if (t1 === t0) t1 = t0 + 864e5;
+    function X(t) { return padL + (t - t0) / (t1 - t0) * xs; }
+    function Y(v) { return padT + (1 - (v - lo) / (hi - lo)) * ys; }
+    var s = '', nt = niceTicks(lo, hi, 6);
+    nt.ticks.forEach(function (gv) {
+      var gy = Y(gv);
+      s += '<line class="grid-line" x1="' + padL + '" y1="' + gy.toFixed(1) + '" x2="' + (W - padR) + '" y2="' + gy.toFixed(1) + '"/>';
+      s += '<text class="axis-text" x="' + (padL - 5) + '" y="' + (gy + 3).toFixed(1) + '" text-anchor="end">' + gv.toFixed(nt.dp) + '</text>';
+    });
+    (o.refs || []).forEach(function (r) {
+      if (r.v <= lo || r.v >= hi) return;
+      var ry = Y(r.v);
+      s += '<line class="ref-line" x1="' + padL + '" y1="' + ry.toFixed(1) + '" x2="' + (W - padR) + '" y2="' + ry.toFixed(1) + '"' + (r.color ? ' style="stroke:' + r.color + ';opacity:.8"' : '') + '/>';
+      s += '<text class="axis-text" x="' + (W - padR + 4) + '" y="' + (ry + 3).toFixed(1) + '"' + (r.color ? ' style="fill:' + r.color + '"' : '') + '>' + esc(r.label) + '</text>';
+    });
+    [0, 0.5, 1].forEach(function (f, k) {
+      var t = t0 + (t1 - t0) * f;
+      s += '<text class="axis-text" x="' + X(t).toFixed(1) + '" y="' + (H - 6) + '" text-anchor="' + (k === 0 ? 'start' : k === 2 ? 'end' : 'middle') + '">' + shortDate(t) + '</text>';
+    });
+    o.series.forEach(function (se) {
+      var pts = se.pts.slice().sort(function (a, b) { return a.t - b.t; });
+      if (se.line && pts.length > 1) {
+        // Break the line across gaps so it never implies data that does not exist.
+        s += '<path class="series-line" stroke="' + se.color + '" stroke-width="' + (se.width || 2) + '"' + (se.dash ? ' stroke-dasharray="' + se.dash + '"' : '') + ' d="'
+          + pts.map(function (p, i) {
+            var brk = i === 0 || (se.gapMs && p.t - pts[i - 1].t > se.gapMs);
+            return (brk ? 'M' : 'L') + X(p.t).toFixed(1) + ' ' + Y(p.v).toFixed(1);
+          }).join(' ') + '"/>';
+      }
+      if (se.dots !== false) pts.forEach(function (p) {
+        var x = X(p.t).toFixed(1), y = Y(p.v).toFixed(1), r = p.r || se.r || 3;
+        var tip = p.tip ? ' data-tip="' + esc(p.tip) + '"' : '';
+        s += p.shape === 's'
+          ? '<rect class="pt" x="' + (x - r) + '" y="' + (y - r) + '" width="' + 2 * r + '" height="' + 2 * r + '" rx="1" fill="' + se.color + '"' + tip + '/>'
+          : '<circle class="pt" cx="' + x + '" cy="' + y + '" r="' + r + '" fill="' + se.color + '"' + tip + '/>';
+      });
+    });
+    return '<div class="wrap"><svg class="chart" viewBox="0 0 ' + W + ' ' + H + '">' + s + '</svg><div class="tip"></div></div>';
+  }
+
+  /* ── Grouped bars: monthly morning vs evening ──────────────────────────────── */
+  function monthBars(rows) {
+    rows = rows.filter(function (r) { return (r.am && r.am.n) || (r.pm && r.pm.n); });
+    if (!rows.length) return '<div class="empty">Data belum cukup</div>';
+    var W = 560, H = 190, padL = 40, padR = 14, padT = 14, padB = 24, xs = W - padL - padR, ys = H - padT - padB;
+    var vals = []; rows.forEach(function (r) { ['am', 'pm'].forEach(function (k) { if (r[k] && r[k].n) vals.push(r[k].sys); }); });
+    var lo = Math.floor(Math.min.apply(null, vals) / 10) * 10 - 10, hi = Math.ceil(Math.max.apply(null, vals) / 10) * 10 + 5;
+    function Y(v) { return padT + (1 - (v - lo) / (hi - lo)) * ys; }
+    var s = '';
+    niceTicks(lo, hi, 5).ticks.forEach(function (gv) {
+      var gy = Y(gv);
+      s += '<line class="grid-line" x1="' + padL + '" y1="' + gy.toFixed(1) + '" x2="' + (W - padR) + '" y2="' + gy.toFixed(1) + '"/>';
+      s += '<text class="axis-text" x="' + (padL - 5) + '" y="' + (gy + 3).toFixed(1) + '" text-anchor="end">' + gv.toFixed(0) + '</text>';
+    });
+    var hs = state.data.profile.home_threshold[0];
+    if (hs > lo && hs < hi) s += '<line class="ref-line" x1="' + padL + '" y1="' + Y(hs) + '" x2="' + (W - padR) + '" y2="' + Y(hs) + '"/><text class="axis-text" x="' + (padL + 4) + '" y="' + (Y(hs) - 4) + '" text-anchor="start">ambang rumah ' + hs + '</text>';
+    var gw = xs / rows.length, bw = Math.min(26, gw * 0.32);
+    rows.forEach(function (r, i) {
+      var cx = padL + gw * (i + 0.5);
+      [['am', 'pagi', -1, 'var(--dia)'], ['pm', 'malam', 1, 'var(--sys)']].forEach(function (k) {
+        var d = r[k[0]]; if (!d || !d.n) return;
+        var x = cx + (k[2] < 0 ? -bw - 1 : 1), y = Y(d.sys);
+        s += '<rect class="pt" x="' + x.toFixed(1) + '" y="' + y.toFixed(1) + '" width="' + bw + '" height="' + Math.max(1, padT + ys - y).toFixed(1) + '" rx="2" fill="' + k[3] + '" data-tip="' + esc(r.month + ' · ' + k[1] + '<br><b>' + d.sys + '/' + d.dia + '</b> mmHg · n=' + d.n) + '"/>';
+        s += '<text class="axis-text" x="' + (x + bw / 2).toFixed(1) + '" y="' + (y - 3).toFixed(1) + '" text-anchor="middle" style="fill:var(--text)">' + Math.round(d.sys) + '</text>';
+      });
+      s += '<text class="axis-text" x="' + cx + '" y="' + (H - 7) + '" text-anchor="middle">' + r.month.slice(2) + '</text>';
+    });
+    return '<div class="wrap"><svg class="chart" viewBox="0 0 ' + W + ' ' + H + '">' + s + '</svg><div class="tip"></div></div>'
+      + '<div class="legend"><span><i class="sw" style="background:var(--dia)"></i>Pagi</span><span><i class="sw" style="background:var(--sys)"></i>Malam</span><span>nilai = sistolik rata-rata</span></div>';
+  }
+
+  function scatter(points, xLabel, yLabel) {
+    if (!points || points.length < 3) return '';
+    var W = 360, H = 150, padL = 36, padR = 10, padT = 10, padB = 24, xs = W - padL - padR, ys = H - padT - padB;
+    var xv = points.map(function (p) { return p[0]; }), yv = points.map(function (p) { return p[1]; });
+    var x0 = Math.min.apply(null, xv), x1 = Math.max.apply(null, xv), y0 = Math.min.apply(null, yv), y1 = Math.max.apply(null, yv);
+    if (x1 === x0) x1 = x0 + 1; if (y1 === y0) y1 = y0 + 1;
+    var s = '<line class="grid-line" x1="' + padL + '" y1="' + (padT + ys) + '" x2="' + (W - padR) + '" y2="' + (padT + ys) + '"/><line class="grid-line" x1="' + padL + '" y1="' + padT + '" x2="' + padL + '" y2="' + (padT + ys) + '"/>';
+    var xd = x1 - x0 < 10 ? 1 : 0, yd = y1 - y0 < 10 ? 2 : 0;
+    s += '<text class="axis-text" x="' + padL + '" y="' + (H - 6) + '">' + esc(xLabel) + ': ' + x0.toFixed(xd) + ' – ' + x1.toFixed(xd) + '</text>';
+    s += '<text class="axis-text" x="' + (padL - 4) + '" y="' + (padT + 8) + '" text-anchor="end">' + y1.toFixed(yd) + '</text><text class="axis-text" x="' + (padL - 4) + '" y="' + (padT + ys) + '" text-anchor="end">' + y0.toFixed(yd) + '</text>';
+    s += '<text class="axis-text" x="' + (padL + 4) + '" y="' + (padT + 8) + '">' + esc(yLabel) + '</text>';
+    points.forEach(function (p) {
+      var x = padL + (p[0] - x0) / (x1 - x0) * xs, y = padT + (1 - (p[1] - y0) / (y1 - y0)) * ys;
+      s += '<circle class="pt" cx="' + x.toFixed(1) + '" cy="' + y.toFixed(1) + '" r="3" fill="var(--accent)" fill-opacity=".75" data-tip="' + esc(xLabel + ' ' + p[0] + '<br>' + yLabel + ' ' + p[1]) + '"/>';
+    });
+    return '<div class="wrap"><svg class="chart" viewBox="0 0 ' + W + ' ' + H + '">' + s + '</svg><div class="tip"></div></div>';
+  }
+
+  function card(title, color, latest, note, body, legend) {
+    return '<div class="card"><div class="card-head"><div class="card-title"><i class="dot-title" style="background:' + color + '"></i>' + esc(title) + '</div>'
+      + (latest ? '<div class="card-latest">' + esc(latest) + '</div>' : '') + '</div>'
+      + (note ? '<div class="card-note">' + note + '</div>' : '') + body + (legend || '') + '</div>';
+  }
+
+  /* ── Sections ─────────────────────────────────────────────────────────────── */
+  function tiles(S) {
+    var w = S.weight || {}, bp = S.bp || {}, t = [];
+    var cat = w.bmi_category;
+    t.push({ l: 'BMI', v: w.bmi != null ? fmt(w.bmi) : null, c: cat ? BMI_COLORS[cat.key] : 'var(--muted)',
+             m: cat ? esc(cat.label) + ' · WHO: ' + esc(w.bmi_category_who.label) : 'atur tinggi badan' });
+    t.push({ l: 'Berat (tren)', v: w.trend_kg != null ? fmt(w.trend_kg) : null, u: 'kg', c: 'var(--wt)',
+             m: w.latest ? 'terakhir ' + fmt(w.latest.kg) + ' kg · ' + esc(w.latest.date) : '' });
+    t.push({ l: 'Ke batas BMI ' + (S.profile.target_bmi), v: w.target ? (w.target.to_go_kg > 0 ? '−' : '+') + fmt(Math.abs(w.target.to_go_kg)) : null, u: 'kg', c: 'var(--trend)',
+             m: w.target ? 'sasaran ' + fmt(w.target.kg) + ' kg' : '' });
+    var lv = bp.level;
+    t.push({ l: 'Tensi rata-rata', v: lv && lv.n ? Math.round(lv.sys) + '/' + Math.round(lv.dia) : null, u: 'mmHg',
+             c: 'var(--sys)', m: lv ? 'n=' + lv.n + ' sesi · ' + esc(lv.scope.split(' (')[0]) : '' });
+    t.push({ l: 'Sesi ≥ ' + S.profile.home_threshold.join('/'), v: bp.share_ge_home != null ? bp.share_ge_home + '%' : null, c: 'var(--c-stage2)',
+             m: bp.n_sessions ? 'dari ' + bp.n_sessions + ' sesi · ' + bp.n_days + ' hari' : '' });
+    t.push({ l: 'MAP · tek. nadi', v: bp.map_mean != null ? fmt(bp.map_mean, 0) + ' · ' + fmt(bp.pp_mean, 0) : null, c: 'var(--map)', m: 'rata-rata, mmHg' });
+    t.push({ l: 'Terakhir ukur', v: bp.days_since_last != null ? bp.days_since_last : null, u: 'hari lalu', c: 'var(--pp)', m: bp.last_date || '' });
+    return '<div class="tiles">' + t.map(function (x) {
+      return '<div class="tile" style="--tc:' + x.c + '"><div class="t-label">' + esc(x.l) + '</div><div class="t-value">' + esc(x.v == null ? '—' : x.v)
+        + (x.u ? ' <span class="t-unit">' + esc(x.u) + '</span>' : '') + '</div>' + (x.m ? '<div class="t-meta">' + x.m + '</div>' : '') + '</div>';
+    }).join('') + '</div>';
+  }
+
+  function insights(S) {
+    if (!S.insights || !S.insights.length) return '';
+    return '<div class="sec-title">Insight</div><div class="insights">' + S.insights.map(function (i) {
+      return '<div class="ins" style="--sc:' + (SEV_COLORS[i.severity] || SEV_COLORS.info) + '"><div class="i-sev">' + esc(i.severity) + '</div>'
+        + '<div class="i-title">' + esc(i.title) + '</div><div class="i-text">' + esc(i.text) + '</div></div>';
+    }).join('') + '</div>';
+  }
+
+
+  /* BMI position bar: bands of the chosen standard, marker at the current BMI.
+     Kept apart from the weight chart so far-away band lines cannot squash the data. */
+  function bmiGauge(S) {
+    var w = S.weight || {}; if (w.bmi == null || !(w.bmi_lines_kg || []).length) return '';
+    var cuts = w.bmi_lines_kg, lo = 15, hi = 35, W = 560, H = 84, padL = 12, padR = 12, xs = W - padL - padR;
+    var palette = ['var(--c-elevated)', 'var(--c-normal)', 'var(--c-stage1)', 'var(--c-stage2)', 'var(--c-crisis)'];
+    function X(b) { return padL + (Math.min(Math.max(b, lo), hi) - lo) / (hi - lo) * xs; }
+    var bounds = [lo].concat(cuts.map(function (c) { return c.bmi; })).concat([hi]), s = '';
+    for (var i = 0; i < bounds.length - 1; i++) {
+      s += '<rect x="' + X(bounds[i]).toFixed(1) + '" y="26" width="' + (X(bounds[i + 1]) - X(bounds[i])).toFixed(1) + '" height="14" fill="' + palette[i] + '" opacity=".85"/>';
+    }
+    cuts.forEach(function (c) {
+      s += '<text class="axis-text" x="' + X(c.bmi).toFixed(1) + '" y="54" text-anchor="middle" style="fill:var(--text)">' + c.bmi + '</text>'
+        + '<text class="axis-text" x="' + X(c.bmi).toFixed(1) + '" y="66" text-anchor="middle">' + Math.round(c.kg) + ' kg</text>';
+    });
+    var mx = X(w.bmi).toFixed(1);
+    s += '<path d="M' + mx + ' 24 l-5 -9 h10 z" fill="var(--text)"/><text class="axis-text" x="' + mx + '" y="10" text-anchor="middle" style="fill:var(--text);font-weight:700">BMI ' + fmt(w.bmi) + ' \u00b7 ' + fmt(w.latest.kg) + ' kg</text>';
+    return '<svg class="chart" viewBox="0 0 ' + W + ' ' + H + '">' + s + '</svg>';
+  }
+
+  function weightSection(S) {
+    var w = S.weight || {}, ser = (w.series || []).filter(function (r) { return inRange(r.date); });
+    var raw = ser.map(function (r) { return { t: dayMs(r.date), v: r.kg, tip: r.date + '<br><b>' + r.kg + ' kg</b>' + (w.height_cm ? '<br>BMI ' + fmt(r.kg / Math.pow(w.height_cm / 100, 2)) : '') }; });
+    var trend = ser.map(function (r) { return { t: dayMs(r.date), v: r.trend, tip: r.date + '<br>tren <b>' + r.trend + ' kg</b>' }; });
+    var kgs = ser.map(function (r) { return r.kg; }), kLo = Math.min.apply(null, kgs), kHi = Math.max.apply(null, kgs);
+    var refs = (w.bmi_lines_kg || []).filter(function (l) { return l.kg > kLo - 20 && l.kg < kHi + 20; }).map(function (l) {
+      var isTarget = Math.abs(l.bmi - S.profile.target_bmi) < 0.5;
+      return { v: l.kg, label: 'BMI ' + l.bmi + ' · ' + l.kg, color: isTarget ? 'var(--c-elevated)' : null };
+    });
+    var chart = tsChart({ h: 230, padR: 84, series: [{ color: 'var(--trend)', width: 2.2, line: true, dots: false, pts: trend }, { color: 'var(--wt)', pts: raw, r: 3.4 }], refs: refs });
+    var legend = '<div class="legend"><span><i class="sw circ" style="background:var(--wt)"></i>Penimbangan</span><span><i class="sw" style="background:var(--trend)"></i>Tren (EWMA)</span><span>garis putus = batas BMI (bila dalam rentang)</span></div>';
+    var ch = (w.changes || []).map(function (c) { return c.days + ' hari: ' + (c.delta_kg > 0 ? '+' : '') + c.delta_kg + ' kg'; }).join(' · ');
+    return '<div class="sec-title">Berat badan &amp; BMI<span class="sec-sub">' + esc(ch) + '</span></div>'
+      + card('Berat badan', 'var(--wt)', w.latest ? fmt(w.latest.kg) + ' kg' : null, 'tren menghaluskan naik-turun harian · ' + (w.n_days || 0) + ' hari penimbangan', chart, legend)
+      + (bmiGauge(S) ? card('Posisi BMI', 'var(--c-normal)', w.bmi_category ? w.bmi_category.label : null,
+          'pita = kategori ' + esc(S.profile.bmi_standard.replace('_', '-')) + ' · angka di bawah = berat (kg) pada tinggi ' + w.height_cm + ' cm', bmiGauge(S)) : '');
+  }
+
+  function bpSection(S) {
+    var bp = S.bp || {};
+    if (!bp.n_sessions) return '<div class="sec-title">Tekanan darah</div><div class="empty">Belum ada data tensi.</div>';
+    var ses = (bp.sessions || []).filter(function (s) { return inRange(s.date); });
+    var hs = S.profile.home_threshold;
+    function tip(s) { return s.t.replace('T', ' ') + ' · ' + s.period + '<br><b>' + s.sys + '/' + s.dia + '</b> mmHg' + (s.pulse ? ' · nadi ' + s.pulse : '') + '<br>MAP ' + s.map + ' · TN ' + s.pp + (s.n > 1 ? '<br>' + s.n + ' pengukuran' : ''); }
+    var sysPts = ses.map(function (s) { return { t: tMs(s.t), v: s.sys, tip: tip(s), shape: s.period === 'malam' ? 's' : 'c' }; });
+    var diaPts = ses.map(function (s) { return { t: tMs(s.t), v: s.dia, tip: tip(s), shape: s.period === 'malam' ? 's' : 'c' }; });
+    var roll = (bp.rolling7 || []).filter(function (r) { return inRange(r.date); });
+    var rs = roll.map(function (r) { return { t: dayMs(r.date) + 432e5, v: r.sys, tip: r.date + '<br>rata-rata 7 hari <b>' + r.sys + '/' + r.dia + '</b> (n=' + r.n + ')' }; });
+    var rd = roll.map(function (r) { return { t: dayMs(r.date) + 432e5, v: r.dia, tip: r.date + '<br>rata-rata 7 hari <b>' + r.sys + '/' + r.dia + '</b> (n=' + r.n + ')' }; });
+    var chart = tsChart({ h: 230, series: [
+      { color: 'var(--sys)', width: 1.8, line: true, dots: false, gapMs: GAP, pts: rs }, { color: 'var(--dia)', width: 1.8, line: true, dots: false, gapMs: GAP, pts: rd },
+      { color: 'var(--sys)', pts: sysPts, r: 3.2 }, { color: 'var(--dia)', pts: diaPts, r: 3.2 }],
+      refs: [{ v: hs[0], label: 'rumah ' + hs[0], color: 'var(--sys)', include: true }, { v: hs[1], label: 'rumah ' + hs[1], color: 'var(--dia)', include: true }, { v: 120, label: '120' }, { v: 80, label: '80' }] });
+    var legend = '<div class="legend"><span><i class="sw circ" style="background:var(--sys)"></i>Sistolik</span><span><i class="sw circ" style="background:var(--dia)"></i>Diastolik</span>'
+      + '<span>○ pagi &nbsp;■ malam</span><span>garis = rata-rata 7 hari</span><span>putus = ambang tensi rumah</span></div>';
+    var html = '<div class="sec-title">Tekanan darah<span class="sec-sub">' + bp.n_readings + ' pengukuran · ' + bp.n_sessions + ' sesi · ' + bp.first_date + ' → ' + bp.last_date + '</span></div>';
+    html += card('Tensi per sesi', 'var(--sys)', bp.level && bp.level.n ? Math.round(bp.level.sys) + '/' + Math.round(bp.level.dia) + ' (' + bp.level.scope.split(' (')[0] + ')' : null,
+      'pengukuran ≤10 menit dirata-ratakan menjadi satu sesi', chart, legend);
+
+    html += '<div class="grid2">';
+    html += card('Pagi vs malam', 'var(--dia)', null, 'rata-rata sistolik per bulan; pagi &lt; ' + S.profile.morning_before_hour + '.00, malam ≥ ' + S.profile.evening_from_hour + '.00', monthBars(bp.monthly || []));
+    var cats = (bp.categories_by_month || []);
+    var catHtml = cats.length ? cats.map(function (m) {
+      var segs = CAT_ORDER.map(function (k) { return m[k] ? '<i style="width:' + (m[k] / m.n * 100).toFixed(1) + '%;background:' + CAT_COLORS[k] + '" title="' + esc(S.bp_category_labels[k] + ': ' + m[k]) + '"></i>' : ''; }).join('');
+      return '<div class="cat-row"><span>' + esc(m.month) + '</span><div class="cat-bar">' + segs + '</div><span>n=' + m.n + '</span></div>';
+    }).join('') : '<div class="empty">Data belum cukup</div>';
+    var catLegend = '<div class="legend">' + CAT_ORDER.map(function (k) { return '<span><i class="sw" style="background:' + CAT_COLORS[k] + '"></i>' + esc(S.bp_category_labels[k]) + '</span>'; }).join('') + '</div>';
+    html += card('Kategori per bulan', 'var(--c-stage1)', null, 'klasifikasi ACC/AHA 2017 atas rata-rata tiap sesi', catHtml, catLegend);
+    html += '</div>';
+
+    var mapPts = ses.map(function (s) { return { t: tMs(s.t), v: s.map, tip: tip(s) }; });
+    var ppPts = ses.map(function (s) { return { t: tMs(s.t), v: s.pp, tip: tip(s) }; });
+    html += '<div class="grid2">';
+    html += card('Mean arterial pressure (MAP)', 'var(--map)', bp.map_mean != null ? fmt(bp.map_mean, 0) + ' mmHg' : null, 'MAP = diastolik + (sistolik − diastolik) / 3', tsChart({ h: 160, series: [{ color: 'var(--map)', pts: mapPts, line: true, width: 1.2, r: 2.6, gapMs: GAP }] }));
+    html += card('Tekanan nadi (sistolik − diastolik)', 'var(--pp)', bp.pp_mean != null ? fmt(bp.pp_mean, 0) + ' mmHg' : null, 'sering diperhatikan bila ≥ 60 mmHg', tsChart({ h: 160, series: [{ color: 'var(--pp)', pts: ppPts, line: true, width: 1.2, r: 2.6, gapMs: GAP }], refs: [{ v: 60, label: '60' }] }));
+    html += '</div>';
+    return html;
+  }
+
+  var STATUS_LABEL = { found: 'Terdeteksi', weak: 'Tidak ada hubungan berarti', insufficient: 'Butuh data lagi' };
+  function crossSection(S) {
+    var c = S.cross || {}, items = c.items || [];
+    var html = '<div class="sec-title">Hubungan antar-metrik<span class="sec-sub">korelasi, bukan sebab-akibat · hanya muncul bila data cukup</span></div><div class="grid2">';
+    items.forEach(function (it) {
+      html += '<div class="xitem"><span class="badge ' + esc(it.status) + '">' + esc(STATUS_LABEL[it.status] || it.status) + '</span><div class="x-title">' + esc(it.title) + '</div>'
+        + '<div class="x-text">' + esc(it.text) + '</div>' + (it.status !== 'insufficient' && it.caution ? '<div class="x-caution">⚠ ' + esc(it.caution) + '</div>' : '')
+        + (it.points ? scatter(it.points, it.x_label || 'x', it.y_label || 'y') : '') + '</div>';
+    });
+    html += '</div>';
+    var v = c.vo2max_abs;
+    if (v) {
+      html += '<div class="card" style="margin-top:12px"><div class="card-title"><i class="dot-title" style="background:var(--trend)"></i>VO2max dan berat badan</div>'
+        + '<div class="card-note">' + esc(v.note) + '</div><div class="vo2">'
+        + '<div><span>VO2max relatif</span><b>' + fmt(v.vo2max_rel) + '</b></div>'
+        + '<div><span>Berat</span><b>' + fmt(v.weight_kg) + ' kg</b></div>'
+        + '<div><span>VO2max mutlak</span><b>' + fmt(v.vo2max_abs_l_min, 2) + ' L/mnt</b></div>'
+        + '<div><span>Per −1 kg</span><b>+' + fmt(v.pct_per_minus_1kg, 2) + '%</b></div>'
+        + (v.rel_at_target_weight != null ? '<div><span>Jika ' + fmt(v.target_weight_kg) + ' kg (hipotetis)</span><b>' + fmt(v.rel_at_target_weight) + '</b></div>' : '')
+        + '</div></div>';
+    }
+    return html;
+  }
+
+  function table(S) {
+    var ses = ((S.bp || {}).sessions || []).slice(-15).reverse();
+    if (!ses.length) return '';
+    return '<div class="sec-title">Pengukuran terbaru</div><div class="card" style="overflow-x:auto"><table class="tbl"><thead><tr><th>Waktu</th><th>Sesi</th><th>Tensi</th><th>Nadi</th><th>MAP</th><th>Kategori</th></tr></thead><tbody>'
+      + ses.map(function (s) {
+        return '<tr><td>' + esc(s.t.replace('T', ' ')) + '</td><td>' + esc(s.period) + (s.n > 1 ? ' ×' + s.n : '') + '</td><td><b>' + s.sys + '/' + s.dia + '</b></td><td>' + (s.pulse || '—') + '</td><td>' + s.map + '</td>'
+          + '<td><i class="cat-dot" style="background:' + CAT_COLORS[s.cat] + '"></i>' + esc(((S.bp_category_labels || {})[s.cat] || s.cat).split(' (')[0]) + '</td></tr>';
+      }).join('') + '</tbody></table></div>';
+  }
+
+  function definitions() {
+    return '<details class="defs"><summary>Definisi dan rumus</summary>'
+      + '<p><b>BMI</b> = berat (kg) / tinggi (m)². Kategori utama Asia-Pasifik (normal 18,5–22,9; berisiko 23–24,9; obesitas I 25–29,9; obesitas II ≥30), WHO global sebagai pembanding. BMI tidak membedakan otot dan lemak.</p>'
+      + '<p><b>Tren berat</b> = rata-rata bergerak eksponensial (α=0,1, memperhitungkan jarak hari). Laju kg/minggu hanya dihitung bila ≥4 hari penimbangan dalam rentang ≥14 hari.</p>'
+      + '<p><b>Sesi tensi</b> = pengukuran berjarak ≤10 menit dirata-ratakan. <b>MAP</b> = D + (S−D)/3. <b>Tekanan nadi</b> = S−D. Ambang hipertensi pada tensi rumah: 135/85 mmHg (ESH/ESC); kategori ACC/AHA 2017 untuk sebaran bulanan.</p>'
+      + '<p><b>Hubungan antar-metrik</b> memakai regresi linear dan korelasi Pearson, ditampilkan sebagai temuan hanya bila data berpasangan cukup dan |r| ≥ 0,3. Itu korelasi, bukan bukti sebab-akibat; berat dan kebugaran sama-sama bergeser seiring waktu sehingga mudah semu.</p>'
+      + '<p>Rincian lengkap: <code>docs/body-metrics.md</code> di repositori.</p></details>';
+  }
+
+
+  /* ── AI analysis (on demand; generation needs the access password) ─────────── */
+  function list(items) { return items && items.length ? '<ul>' + items.map(function (x) { return '<li>' + esc(x) + '</li>'; }).join('') + '</ul>' : ''; }
+  function renderAnalysis(a) {
+    var h = '<div class="ai-p">' + esc(a.overview) + '</div>';
+    if (a.urgent) h += '<div class="alert" style="margin-top:10px"><b>Perhatian.</b> ' + esc(a.urgent) + '</div>';
+    var bp = a.blood_pressure || {}, w = a.weight || {};
+    h += '<div class="ai-h">Tekanan darah</div><div class="ai-p">' + esc(bp.assessment) + '</div>' + list(bp.notable);
+    if (bp.discuss_with_doctor && bp.discuss_with_doctor.length) h += '<div class="ai-h">Layak dibicarakan dengan dokter</div>' + list(bp.discuss_with_doctor);
+    h += '<div class="ai-h">Berat badan</div><div class="ai-p">' + esc(w.assessment) + '</div>' + list(w.notable);
+    if (a.connections && a.connections.length) {
+      h += '<div class="ai-h">Hubungan antar-metrik</div>' + a.connections.map(function (c) {
+        return '<div class="ai-conn"><b>' + esc(c.title) + '</b> <span class="badge">' + esc(c.strength) + '</span><br>' + esc(c.observation)
+          + (c.caveat ? '<br><span style="color:var(--muted)">' + esc(c.caveat) + '</span>' : '') + '</div>';
+      }).join('');
+    }
+    if (a.habits && a.habits.length) h += '<div class="ai-h">Kebiasaan yang aman</div>' + list(a.habits);
+    if (a.measurement_plan && a.measurement_plan.length) h += '<div class="ai-h">Rencana pengukuran</div>' + list(a.measurement_plan);
+    if (a.safety_note) h += '<div class="ai-note">' + esc(a.safety_note) + '</div>';
+    return h;
+  }
+  function aiSection() {
+    var ai = state.ai, meta = '';
+    if (ai && ai.generated_at) meta = 'dibuat ' + ai.generated_at.slice(0, 16).replace('T', ' ') + ' UTC' + (ai.model ? ' · ' + esc(ai.model) : '');
+    var body = ai && ai.analysis ? '<div class="ai">' + renderAnalysis(ai.analysis) + '</div>'
+      : '<div class="empty">Belum ada analisis. Tekan tombol untuk membuatnya (±30–60 detik).</div>';
+    var stale = ai && ai.analysis && ai.stale ? '<span class="ai-stale">data berubah sejak analisis ini dibuat</span> ' : '';
+    return '<div class="sec-title">Analisis AI<span class="sec-sub">' + meta + '</span></div><div class="card">' + body
+      + '<div class="ai-note">Ringkasan agregat (bukan stempel waktu per pengukuran) dikirim ke model Qwen. Hasilnya deskriptif, bukan diagnosis atau saran medis.</div>'
+      + '<div style="margin:0 0 10px">' + stale + '<button class="aibtn" id="aiBtn"' + (state.aiBusy ? ' disabled' : '') + '>'
+      + (state.aiBusy ? 'Menganalisis…' : ai && ai.analysis ? 'Buat ulang analisis' : 'Buat analisis') + '</button>'
+      + (state.aiMsg ? ' <span class="ai-stale">' + esc(state.aiMsg) + '</span>' : '') + '</div></div>';
+  }
+  function loadAI() {
+    return fetch(API + '/analyze?kind=body', { headers: { Authorization: 'Bearer ' + token() } })
+      .then(function (r) { return r.ok ? r.json() : null; })
+      .then(function (j) { if (j && j.analysis) { state.ai = j; render(); } })
+      .catch(function () {});
+  }
+  function generateAI() {
+    if (state.aiBusy) return;
+    state.aiBusy = true; state.aiMsg = ''; render();
+    fetch(API + '/analyze?kind=body', { method: 'POST', headers: { Authorization: 'Bearer ' + token() } })
+      .then(function (r) { return r.json().then(function (j) { return { ok: r.ok, j: j }; }); })
+      .then(function (x) {
+        if (!x.ok) throw new Error(x.j.detail || x.j.error || 'gagal');
+        if (x.j.analysis) state.ai = x.j;
+        if (x.j.cached) state.aiMsg = 'analisis terbaru masih baru; coba lagi dalam ' + x.j.cooldown_remaining_minutes + ' menit';
+        else if (!x.j.analysis) state.aiMsg = x.j.detail || 'tidak ada data';
+      })
+      .catch(function (e) { state.aiMsg = 'Gagal: ' + e.message; })
+      .then(function () { state.aiBusy = false; render(); });
+  }
+  document.addEventListener('click', function (e) { if (e.target && e.target.id === 'aiBtn') generateAI(); });
+
+  function render() {
+    var S = state.data;
+    document.getElementById('asof').textContent = 'dihitung ' + (state.computed_at ? state.computed_at.slice(0, 16).replace('T', ' ') + ' UTC' : '—') + ' · data s.d. ' + S.as_of;
+    var urgent = (S.insights || []).filter(function (i) { return i.id === 'bp_urgent'; })[0];
+    var html = urgent ? '<div class="alert"><b>' + esc(urgent.title) + '.</b> ' + esc(urgent.text) + '</div>' : '';
+    html += tiles(S) + insights(S) + aiSection() + weightSection(S) + bpSection(S) + crossSection(S) + table(S) + definitions();
+    document.getElementById('content').innerHTML = html;
+  }
+
+  /* ── Tooltip: one delegated handler for hover, tap and keyboard-free use ───── */
+  function showTip(target) {
+    var wrap = target.closest('.wrap'); if (!wrap) return;
+    var tip = wrap.querySelector('.tip'); if (!tip) return;
+    var tr = target.getBoundingClientRect(), wr = wrap.getBoundingClientRect();
+    tip.innerHTML = target.getAttribute('data-tip');
+    var left = tr.left - wr.left + tr.width / 2 - tip.offsetWidth / 2;
+    left = Math.max(0, Math.min(left, wr.width - tip.offsetWidth));
+    tip.style.left = left + 'px';
+    tip.style.top = Math.max(0, tr.top - wr.top - tip.offsetHeight - 8) + 'px';
+    tip.style.opacity = 1;
+  }
+  function hideTips() { document.querySelectorAll('.tip').forEach(function (t) { t.style.opacity = 0; }); }
+  document.addEventListener('mouseover', function (e) { var t = e.target.closest && e.target.closest('[data-tip]'); if (t) showTip(t); });
+  document.addEventListener('mouseout', function (e) { if (e.target.closest && e.target.closest('[data-tip]')) hideTips(); });
+  document.addEventListener('click', function (e) { var t = e.target.closest && e.target.closest('[data-tip]'); if (t) showTip(t); else hideTips(); });
+
+  document.querySelectorAll('.fbtn').forEach(function (b) {
+    b.addEventListener('click', function () {
+      document.querySelectorAll('.fbtn').forEach(function (x) { x.classList.remove('active'); });
+      b.classList.add('active'); state.days = +b.getAttribute('data-days'); if (state.data) render();
+    });
+  });
+
+  function showGate(msg) {
+    document.getElementById('main').style.display = 'none';
+    var g = document.getElementById('gate'); g.style.display = 'flex';
+    if (msg) g.querySelector('.g-sub').textContent = msg;
+  }
+
+  function start() {
+    return GS.ready().then(function () {
+      return fetch(API + '/body', { headers: { Authorization: 'Bearer ' + token() } });
+    }).then(function (r) {
+      if (r.status === 401) throw new Error('Kata sandi salah atau kedaluwarsa');
+      if (!r.ok) throw new Error('HTTP ' + r.status);
+      return r.json();
+    }).then(function (j) {
+      if (!j.summary) { showGate('Belum ada data. Jalankan sinkronisasi harian (Sync Heatmaps) agar tensi dan berat dihitung.'); return; }
+      state.data = j.summary; state.computed_at = j.computed_at;
+      document.getElementById('gate').style.display = 'none';
+      document.getElementById('main').style.display = 'block';
+      render();
+      loadAI();
+    }).catch(function (e) { showGate('Tidak bisa memuat (' + e.message + '). Coba buka lagi.'); });
+  }
+  document.getElementById('unlockBtn').addEventListener('click', start);
+  start();
+}());
+</script>
+<script src="nav.js"></script>
+</body>
+</html>

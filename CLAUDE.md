@@ -57,6 +57,9 @@ Garmin Connect
   → sync_performance_db.py    (PostgreSQL: running_economy, activity_derived,
                                performance_metrics — calls running_economy.py +
                                derived_metrics.py, then pulls Garmin health metrics)
+  → sync_body_db.py           (PostgreSQL: bp_readings, weigh_ins, body_summary — pulls Garmin
+                               blood pressure + weigh-ins, then body_metrics.py computes the
+                               Body-page summary; must run AFTER the performance sync)
   → generate_ai_insights.py   (site/ai_insights.json + ai_insights table)
 ```
 
@@ -72,6 +75,7 @@ Every DB/AI stage is **non-fatal** — a failure there must never break the acti
 | Records | `site/records.html` | `activities.json` | Leaderboards, PRs, split rankings |
 | **Performance** | `site/performance.html` | **`/api/performance`** | Garmin health metrics + derived sports-science metrics over time |
 | **Wellness** | `site/wellness.html` | **`/api/performance`** | Sleep stages, Body Battery, RHR, steps, stress, PRs |
+| **Body** | `site/body.html` | **`/api/body`** (auth-gated) | Weight/BMI, home blood pressure, insights, cross-metric correlations |
 | **Map** | `site/map.html` | **`/api/locations`** | Session locations + GPS routes (auth-gated) |
 | Journal | `site/journal.html` | **`/api/journal`** | Markdown training journal |
 | Todos | `site/todos.html` | **`/api/todos`** | Action items |
@@ -85,6 +89,7 @@ Every DB/AI stage is **non-fatal** — a failure there must never break the acti
 | `/api/session` | — | Validates the access token (login gate) |
 | `/api/performance` | public* | Time-series performance data (+ `latest_any` singletons) |
 | `/api/locations` | **required** | Session coordinates + GPS routes — never public |
+| `/api/body` | **required** | Newest `body_summary` row (weight, BMI, blood pressure, insights) — never public |
 
 \* Public read matches the rest of the dashboard. **`weight_kg` is the one exception** — returned
 only to an authenticated caller.
@@ -104,6 +109,9 @@ Schema reference: `sql/schema_app.sql` (also applied lazily by the API and the s
 | `activity_derived` | Per-activity aerobic decoupling + TRIMP |
 | `performance_metrics` | Long/narrow time series: `metric`, `date`, `value`, `extra` JSONB |
 | `activity_locations` | Session coordinates, place names and `route` polylines (private) |
+| `bp_readings`, `weigh_ins` | Garmin blood pressure / weigh-ins (private; local wall-clock + UTC) |
+| `body_summary` | One JSON row per computation of `scripts/body_metrics.py` (private) |
+| `body_profile` | Personal constants kept out of the public repo, e.g. `height_cm` |
 | `activities`, `activity_splits`, `activity_hr_zones` | From `sync_db.py` (optional) |
 
 `performance_metrics` is intentionally long/narrow so a new metric needs no migration.
@@ -123,12 +131,15 @@ Schema reference: `sql/schema_app.sql` (also applied lazily by the API and the s
 | `scripts/running_economy.py` | Running Economy, EI, cardiac cost, vertical ratio |
 | `scripts/derived_metrics.py` | Decoupling, TRIMP, zone efficiency, recovery balance |
 | `scripts/sync_performance_db.py` | Writes the above to PG + pulls Garmin health metrics |
+| `scripts/body_metrics.py` | **Pure** BMI / weight trend / home-BP / cross-correlation / insight rules (all formulas live here) |
+| `scripts/sync_body_db.py` | Pulls Garmin BP + weigh-ins, computes the summary; `--set-height <cm>`, `--summary-only` |
 | `scripts/ai_insights_db.py` | Persists AI reports (`--backfill` imports history JSON) |
 | `scripts/sync_locations.py` | Session coordinates (bulk) + GPS routes (`--routes`, resumable) |
 | `scripts/garmin_login_local.py` | Interactive local Garmin login (MFA-aware) |
 | `scripts/vercel_build.sh` | Vercel build step: hydrate `site/*.json` from `dashboard-data` |
 | `site/nav.js` | **The** navigation component — add new pages to its `PAGES` list, not to each HTML file |
 | `docs/performance-metrics.md` | **Definitions + formulas for every Performance metric** |
+| `docs/body-metrics.md` | Definitions, thresholds and caveats for the Body page |
 | `config.yaml` | Base config incl. `running_economy` personal constants |
 | `.env` | `DATABASE_URL` (gitignored, **repo root — never `site/`**) |
 
@@ -153,6 +164,18 @@ Applied consistently across frontend and backend:
 
 ## Gotchas
 
+- **Body data is private by construction.** `/api/performance` is public and filters by metric NAME, so blood
+  pressure / weight must never go into `performance_metrics` — they live in their own tables served only by
+  `/api/body` (`requireAuth`). (The legacy `weight_kg` metric there is still filtered by `PRIVATE_METRICS`.)
+- **Height is not in this public repo.** Set it once: `python scripts/sync_body_db.py --set-height <cm>`
+  (stored in `body_profile`; `BODY_HEIGHT_CM` env overrides). Without it BMI is simply not shown.
+- **Garmin `get_body_composition` returns one weight per day**; `get_weigh_ins` returns every weigh-in. The Body
+  page uses the latter. Garmin weight `date` is local wall-clock time encoded as epoch-ms; BP `version` is its id.
+- **Daily activity is near-constant** (every day has TRIMP > 0), so "training day" must be relative to the user's
+  own load distribution (top quartile vs below median), never `trimp > 0`.
+- **Body charts break lines across data gaps** (> 10 days) and use round-number ticks; do not connect across a gap.
+- **`APP_AUTH_TOKEN` exists only in Vercel Production** and changes take effect after a redeploy
+  (`vercel redeploy <current prod URL>` applies new env without shipping new code). Local copy: root `.env`.
 - **Never run bare `vercel deploy --prod` from a laptop.** The upload has no `.git`, so `vercel_build.sh` cannot hydrate `site/*.json` from `dashboard-data` and the site ships with an empty `data.json` and no `activities.json` (404 on Activities/Analytics/Records, `slice` error on the dashboard). Use `bash scripts/deploy_prod.sh`.
 - **`.env` belongs at the repo root, never in `site/`** — `site/` is web-served, so a `.env`
   there would be publicly fetchable.

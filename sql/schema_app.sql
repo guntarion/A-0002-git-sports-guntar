@@ -160,3 +160,51 @@ CREATE INDEX IF NOT EXISTS idx_todos_created   ON todos(created_at DESC);
 CREATE INDEX IF NOT EXISTS idx_todos_done      ON todos(done);
 CREATE INDEX IF NOT EXISTS idx_ai_generated    ON ai_insights(generated_at DESC);
 CREATE INDEX IF NOT EXISTS idx_ai_kind         ON ai_insights(kind);
+
+-- ── Body page: blood pressure, weigh-ins, profile and the computed summary ──
+-- PRIVATE: served only by /api/body (auth required). Deliberately NOT stored in
+-- performance_metrics, because /api/performance is public and filters by metric
+-- name — a forgotten filter entry there would leak these. Separate tables are
+-- unreachable from any public route by construction.
+-- measured_local is Garmin's local wall-clock time (morning/evening buckets
+-- depend on it); measured_at is the same instant in UTC.
+CREATE TABLE IF NOT EXISTS bp_readings (
+    garmin_id       TEXT PRIMARY KEY,            -- Garmin "version"
+    measured_at     TIMESTAMPTZ NOT NULL,
+    measured_local  TIMESTAMP NOT NULL,
+    local_date      DATE NOT NULL,
+    systolic        INTEGER NOT NULL,
+    diastolic       INTEGER NOT NULL,
+    pulse           INTEGER,
+    source          TEXT,
+    notes           TEXT,
+    synced_at       TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+
+CREATE TABLE IF NOT EXISTS weigh_ins (
+    garmin_pk       TEXT PRIMARY KEY,            -- Garmin "samplePk"
+    measured_at     TIMESTAMPTZ NOT NULL,
+    measured_local  TIMESTAMP NOT NULL,
+    local_date      DATE NOT NULL,
+    weight_kg       NUMERIC(6,2) NOT NULL,
+    source          TEXT,
+    synced_at       TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+
+-- Personal constants that must not live in the (public) repo, e.g. height_cm.
+CREATE TABLE IF NOT EXISTS body_profile (
+    key        TEXT PRIMARY KEY,
+    value      TEXT NOT NULL,
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+
+-- One row per computation (see scripts/body_metrics.py); the API serves the newest.
+CREATE TABLE IF NOT EXISTS body_summary (
+    id          BIGSERIAL PRIMARY KEY,
+    computed_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+    payload     JSONB NOT NULL
+);
+
+CREATE INDEX IF NOT EXISTS idx_bp_local  ON bp_readings(measured_local DESC);
+CREATE INDEX IF NOT EXISTS idx_wi_local  ON weigh_ins(measured_local DESC);
+CREATE INDEX IF NOT EXISTS idx_body_sum  ON body_summary(computed_at DESC);

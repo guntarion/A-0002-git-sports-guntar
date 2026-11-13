@@ -24,6 +24,7 @@
     rec:   '<path d="M8 21h8M12 17v4M7 4h10v5a5 5 0 0 1-10 0V4zM5 6H3v2a3 3 0 0 0 3 3M19 6h2v2a3 3 0 0 1-3 3"/>',
     perf:  '<path d="M2 12h4l3 8 4-16 3 8h6"/>',
     well:  '<path d="M20.8 5.6a5 5 0 0 0-7.1 0L12 7.3l-1.7-1.7a5 5 0 1 0-7.1 7.1L12 21.4l8.8-8.7a5 5 0 0 0 0-7.1z"/>',
+    body:  '<rect x="3" y="3" width="18" height="18" rx="3"/><path d="M8 10a4 4 0 0 1 8 0"/><path d="M12 10l2.2-2.4"/>',
     map:   '<path d="M21 10c0 6-9 12-9 12s-9-6-9-12a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/>',
     jrn:   '<path d="M4 4a2 2 0 0 1 2-2h13v18H6a2 2 0 0 0-2 2V4z"/><path d="M9 7h7M9 11h7"/>',
     todo:  '<path d="M9 11l3 3 8-8"/><path d="M20 12v7a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h9"/>'
@@ -37,6 +38,7 @@
     ['records.html',     'Records',     'Rec',  I.rec],
     ['performance.html', 'Performance', 'Perf', I.perf],
     ['wellness.html',    'Wellness',    'Well', I.well],
+    ['body.html',        'Body',        'Body', I.body],
     ['map.html',         'Map',         'Map',  I.map],
     ['journal.html',     'Journal',     'Jrnl', I.jrn],
     ['todos.html',       'Todos',       'Todo', I.todo]

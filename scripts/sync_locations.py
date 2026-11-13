@@ -9,6 +9,11 @@ Two phases, both resumable:
    this is the expensive part. It only fetches activities that do not already
    have a stored route, backs off on failure, and can be stopped and resumed.
 
+EXCLUSIONS: `locations.exclude_activity_ids` in config.yaml lists activities whose
+GPS data is corrupt (e.g. a final fix that jumped hundreds of km). Both phases skip
+them, so a manual DELETE from activity_locations stays deleted. Without this the
+bulk phase re-lists every activity from Garmin on each run and would re-insert it.
+
 PRIVACY: this data is served only to authenticated callers (see
 api/locations.js). Start coordinates of a run typically disclose a home address.
 
@@ -94,10 +99,17 @@ def _simplify(points: List[Dict], max_points: int = 500) -> List[List[float]]:
     return out
 
 
-def fetch_coordinates(conn, client, page_size: int = 200) -> Dict[str, int]:
+def excluded_ids(config: Dict[str, Any]) -> frozenset:
+    """Activity ids listed under `locations.exclude_activity_ids`, as strings."""
+    raw = ((config or {}).get("locations") or {}).get("exclude_activity_ids") or []
+    return frozenset(str(x).strip() for x in raw if str(x).strip())
+
+
+def fetch_coordinates(conn, client, page_size: int = 200, exclude=frozenset()) -> Dict[str, int]:
     """Phase 1 — bulk activity list, cheap."""
     seen = 0
     written = 0
+    skipped_excluded = 0
     start = 0
     while True:
         batch = client.get_activities(start, page_size) or []
@@ -105,6 +117,9 @@ def fetch_coordinates(conn, client, page_size: int = 200) -> Dict[str, int]:
             break
         for a in batch:
             seen += 1
+            if str(a.get("activityId")) in exclude:
+                skipped_excluded += 1
+                continue
             type_key = ((a.get("activityType") or {}).get("typeKey")) or ""
             # Mappable == has coordinates. See the note at the top of the file.
             if a.get("startLatitude") is None or a.get("startLongitude") is None:
@@ -132,17 +147,17 @@ def fetch_coordinates(conn, client, page_size: int = 200) -> Dict[str, int]:
             break
         start += page_size
         time.sleep(1.0)
-    return {"seen": seen, "written": written}
+    return {"seen": seen, "written": written, "excluded": skipped_excluded}
 
 
-def fetch_routes(conn, client, limit: Optional[int] = None) -> Dict[str, int]:
+def fetch_routes(conn, client, limit: Optional[int] = None, exclude=frozenset()) -> Dict[str, int]:
     """Phase 2 — one request per activity. Resumable: skips rows that already
     have a route, so re-running fills in whatever was missed."""
     with conn, conn.cursor() as cur:
         cur.execute(
             "SELECT activity_id FROM activity_locations WHERE route IS NULL ORDER BY date DESC"
         )
-        todo = [r[0] for r in cur.fetchall()]
+        todo = [r[0] for r in cur.fetchall() if str(r[0]) not in exclude]
     if limit:
         todo = todo[:limit]
     if not todo:
@@ -222,10 +237,11 @@ def main() -> int:
 
     try:
         _ensure_schema(conn)
-        stats = fetch_coordinates(conn, client)
-        print(f"Locations: scanned={stats['seen']} stored={stats['written']}")
+        exclude = excluded_ids(config)
+        stats = fetch_coordinates(conn, client, exclude=exclude)
+        print(f"Locations: scanned={stats['seen']} stored={stats['written']} excluded={stats['excluded']}")
         if want_routes:
-            r = fetch_routes(conn, client, limit=limit)
+            r = fetch_routes(conn, client, limit=limit, exclude=exclude)
             print(f"Routes: written={r['written']} no-gps={r['skipped']} of {r['todo']}")
         else:
             print("Routes skipped (pass --routes to fetch them).")

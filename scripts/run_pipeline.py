@@ -298,6 +298,14 @@ def run_pipeline(
                 sync_performance()
             except Exception as exc:
                 print(f"Warning: performance sync failed (non-fatal): {exc}")
+            # Body page: blood pressure + weigh-ins from Garmin, then the
+            # computed summary (non-fatal). Must run after the performance
+            # sync: sleep/HRV/RHR/VO2max/TRIMP feed the cross-domain insights.
+            try:
+                from sync_body_db import main as sync_body
+                sync_body([])
+            except Exception as exc:
+                print(f"Warning: body sync failed (non-fatal): {exc}")
             # Session locations + GPS routes (non-fatal). Coordinates are a
             # cheap bulk call; routes are capped per run via
             # LOCATION_ROUTE_LIMIT so a backlog drains over several days.

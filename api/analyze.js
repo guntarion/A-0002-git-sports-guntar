@@ -7,16 +7,28 @@
 // Auth on POST is not optional: the pages are public and every generation bills
 // the Qwen API, so an unprotected button lets anyone drain the quota. Reads stay
 // public so visitors still see the latest analysis.
+//
+// EXCEPTION: kind=body (weight + blood pressure) is private on EVERY method,
+// including GET — its cached analysis would otherwise be publicly readable.
 import { query } from './_lib/db.js';
 import { requireAuth, sendJson } from './_lib/http.js';
 import { buildAnalysisInput, fingerprint } from './_lib/analysis-input.js';
 import { performancePrompt, analyticsPrompt } from './_lib/analysis-prompts.js';
 import { buildCoachInput } from './_lib/coach-input.js';
 import { coachPrompt } from './_lib/coach-prompt.js';
+import { buildBodyInput } from './_lib/body-input.js';
+import { bodyPrompt } from './_lib/body-prompt.js';
 
-const KINDS = { performance: performancePrompt, analytics: analyticsPrompt, coach: coachPrompt };
+const KINDS = { performance: performancePrompt, analytics: analyticsPrompt, coach: coachPrompt, body: bodyPrompt };
 // The AI Coach reasons over monthly running stats too, so it has its own input.
-const buildInput = (kind, days) => (kind === 'coach' ? buildCoachInput() : buildAnalysisInput(days));
+const buildInput = (kind, days) => {
+  if (kind === 'body') return buildBodyInput();
+  return kind === 'coach' ? buildCoachInput() : buildAnalysisInput(days);
+};
+// body input carries its own fingerprint; the others share the performance one.
+const fingerprintOf = (kind, input) => (kind === 'body' ? input.fingerprint : fingerprint(input));
+const hasData = (kind, input) =>
+  kind === 'body' ? Boolean(input.has_data) : Boolean(input.running_economy || Object.keys(input.metrics || {}).length);
 const COOLDOWN_MINUTES = 10;
 const QWEN_ENDPOINT = process.env.QWEN_ENDPOINT
   || 'https://dashscope-intl.aliyuncs.com/compatible-mode/v1/chat/completions';
@@ -83,11 +95,13 @@ export default async function handler(req, res) {
   const url = new URL(req.url, 'http://x');
   const kind = (url.searchParams.get('kind') || 'performance').toLowerCase();
   const days = parseDays(url.searchParams.get('days'));
-  const key = periodKey(days);
+  // The body analysis is not period-scoped: one cached row, always the latest data.
+  const key = kind === 'body' ? 'current' : periodKey(days);
 
   if (!KINDS[kind]) {
     return sendJson(res, 400, { error: 'unknown kind', allowed: Object.keys(KINDS) });
   }
+  if (kind === 'body' && !requireAuth(req, res)) return;
 
   try {
     if (req.method === 'GET') {
@@ -97,7 +111,7 @@ export default async function handler(req, res) {
       let stale = false;
       try {
         const input = await buildInput(kind, days);
-        stale = fingerprint(input) !== cached.inputs_fingerprint;
+        stale = fingerprintOf(kind, input) !== cached.inputs_fingerprint;
       } catch { /* staleness is advisory only */ }
       return sendJson(res, 200, { ...cached, stale });
     }
@@ -126,12 +140,12 @@ export default async function handler(req, res) {
     }
 
     const input = await buildInput(kind, days);
-    if (!input.running_economy && !Object.keys(input.metrics || {}).length) {
+    if (!hasData(kind, input)) {
       return sendJson(res, 200, { kind, period: key, analysis: null, detail: 'No data in this period.' });
     }
 
     const analysis = await callQwen(KINDS[kind](input), apiKey);
-    const fp = fingerprint(input);
+    const fp = fingerprintOf(kind, input);
 
     await query(
       `INSERT INTO ai_analyses (kind, period_key, generated_at, model, inputs_fingerprint, payload)

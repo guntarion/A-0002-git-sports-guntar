@@ -108,3 +108,19 @@ running_economy:
   hr_rest: 54
   vo2max_ref: 39.0
   sex: "male"          # selects Garmin's rating band table
+
+# Body page (weight + home blood pressure). Non-personal tuning only: height is
+# NOT here (this repo is public) — set it once with
+#   python scripts/sync_body_db.py --set-height <cm>
+# It is stored in the body_profile table. See docs/body-metrics.md.
+body:
+  bmi_standard: asia_pacific   # asia_pacific | who | kemenkes
+  target_bmi: 22.9             # top of the Asia-Pacific normal band
+  morning_before_hour: 12      # sessions before this hour count as "pagi"
+  evening_from_hour: 17        # sessions from this hour count as "malam"
+
+# Map data (scripts/sync_locations.py). Activities listed here are never stored, so a
+# manual DELETE from activity_locations is not undone by the daily sync.
+locations:
+  exclude_activity_ids:
+    - "23862443418"   # corrupt GPS: the final fix jumped ~400 km
