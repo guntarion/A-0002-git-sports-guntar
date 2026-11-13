@@ -34,6 +34,9 @@ rate_limits:
   min_interval_seconds: 10
 
 activities:
+  # Session notes typed in Garmin Connect are shown on the Activities page. The site and
+  # site/activities.json are PUBLIC; set false to stop exporting notes.
+  include_notes: true
   types:
     - AlpineSki
     - BackcountrySki

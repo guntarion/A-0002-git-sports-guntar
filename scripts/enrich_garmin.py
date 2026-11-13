@@ -4,11 +4,15 @@ Enrich Garmin activities with per-activity detailed data:
 - Split/lap data per km from get_activity_splits()
 - Additional detail from get_activity()
 
+- Execution Score (Garmin `directWorkoutComplianceScore`) for structured/coach workouts
+
 Persists enriched data to activities/enriched/garmin/{id}.json
 Tracks state in data/enriched_state_garmin.json to avoid re-fetching.
 """
+import os
 import sys
 import time
+from datetime import date, datetime, timedelta
 from typing import Any, Dict, List, Optional
 
 from sync_garmin import load_garmin_client
@@ -16,6 +20,9 @@ from utils import ensure_dir, load_config, raw_activity_dir, read_json, utc_now,
 
 ENRICHED_DIR = "activities/enriched/garmin"
 STATE_PATH = "data/enriched_state_garmin.json"
+EXEC_STATE_KEY = "execution_checked_ids"
+# Garmin scores a workout some time after upload; do not give up on a fresh activity.
+EXEC_RECENT_DAYS = 3
 
 
 def _safe_float(value: Any, default: float = 0.0) -> float:
@@ -161,16 +168,86 @@ def _parse_hr_zones(raw_zones: List[Dict]) -> List[Dict]:
     return sorted(zones, key=lambda z: z["zone"])
 
 
-def enrich_garmin(max_per_run: int = 500) -> Dict[str, Any]:
-    """Enrich Garmin activities with per-activity detailed data."""
-    import os
+def execution_score_from_detail(detail: Optional[Dict[str, Any]]) -> Optional[int]:
+    """Garmin Coach / structured-workout Execution Score = summaryDTO.directWorkoutComplianceScore."""
+    value = ((detail or {}).get("summaryDTO") or {}).get("directWorkoutComplianceScore")
+    if value is None:
+        return None
+    try:
+        return int(round(float(value)))
+    except (TypeError, ValueError):
+        return None
 
+
+def _execution_candidates(raw_dir: str, checked: set) -> List[tuple]:
+    """Raw activities that came from a structured workout (have a workoutId) and
+    have not been checked yet. Only those can carry an execution score."""
+    out: List[tuple] = []
+    if not os.path.exists(raw_dir):
+        return out
+    for filename in sorted(os.listdir(raw_dir)):
+        if not filename.endswith(".json"):
+            continue
+        activity_id = filename[:-5]
+        if activity_id in checked:
+            continue
+        try:
+            raw = read_json(os.path.join(raw_dir, filename))
+        except Exception:
+            continue
+        if isinstance(raw, dict) and raw.get("workoutId"):
+            out.append((activity_id, raw))
+    return out
+
+
+def _is_recent(raw: Dict[str, Any], today: Optional[date] = None) -> bool:
+    today = today or date.today()
+    try:
+        day = datetime.fromisoformat(str(raw.get("startTimeLocal") or "")[:10]).date()
+    except ValueError:
+        return False
+    return (today - day) <= timedelta(days=EXEC_RECENT_DAYS)
+
+
+def _enrich_execution(client: Any, candidates: List[tuple], checked: set,
+                      today: Optional[date] = None) -> Dict[str, int]:
+    """One get_activity() per structured workout; merges `execution_score` into the
+    enriched file. Resumable: an id is marked checked only once the answer is final."""
+    found = 0
+    for activity_id, raw in candidates:
+        detail = _fetch_detail(client, activity_id)
+        if detail is None:
+            continue  # transient failure: try again next run
+        score = execution_score_from_detail(detail)
+        if score is None and _is_recent(raw, today):
+            continue  # Garmin may not have scored it yet
+        if score is not None:
+            path = f"{ENRICHED_DIR}/{activity_id}.json"
+            data: Dict[str, Any] = {"id": activity_id}
+            if os.path.exists(path):
+                try:
+                    existing = read_json(path)
+                    if isinstance(existing, dict):
+                        data = existing
+                except Exception:
+                    pass
+            data["execution_score"] = score
+            write_json(path, data)
+            found += 1
+        checked.add(activity_id)
+        time.sleep(0.3)
+    return {"checked": len(candidates), "scored": found}
+
+
+def enrich_garmin(max_per_run: int = 500, max_execution: int = 80) -> Dict[str, Any]:
+    """Enrich Garmin activities with per-activity detailed data."""
     config = load_config()
     raw_dir = raw_activity_dir("garmin")
     ensure_dir(ENRICHED_DIR)
 
     state = _load_state()
     enriched_ids: set = set(state.get("enriched_ids", []))
+    checked: set = set(state.get(EXEC_STATE_KEY, []))
 
     # Find activities needing enrichment
     to_enrich = []
@@ -181,8 +258,9 @@ def enrich_garmin(max_per_run: int = 500) -> Dict[str, Any]:
             activity_id = filename[:-5]
             if activity_id not in enriched_ids:
                 to_enrich.append(activity_id)
+    to_exec = _execution_candidates(raw_dir, checked)[:max_execution]
 
-    if not to_enrich:
+    if not to_enrich and not to_exec:
         print(f"All {len(enriched_ids)} activities already enriched.")
         return {
             "enriched": 0,
@@ -190,12 +268,13 @@ def enrich_garmin(max_per_run: int = 500) -> Dict[str, Any]:
             "total_enriched": len(enriched_ids),
         }
 
-    print(f"Enriching {min(len(to_enrich), max_per_run)} activities (max {max_per_run})...")
-    to_enrich = to_enrich[:max_per_run]
-
     client = load_garmin_client(config)
     enriched_count = 0
     error_count = 0
+
+    if to_enrich:
+        print(f"Enriching {min(len(to_enrich), max_per_run)} activities (max {max_per_run})...")
+        to_enrich = to_enrich[:max_per_run]
 
     for activity_id in to_enrich:
         try:
@@ -229,8 +308,18 @@ def enrich_garmin(max_per_run: int = 500) -> Dict[str, Any]:
             print(f"  Error enriching {activity_id}: {exc}", file=sys.stderr)
             error_count += 1
 
+    # Execution scores run AFTER the loop above, which rewrites each enriched file from scratch.
+    exec_stats: Dict[str, int] = {}
+    if to_exec:
+        try:
+            exec_stats = _enrich_execution(client, to_exec, checked)
+            print(f"  Execution scores: {exec_stats}")
+        except Exception as exc:
+            print(f"  Execution score step failed (non-fatal): {exc}", file=sys.stderr)
+
     _save_state({
         "enriched_ids": sorted(enriched_ids),
+        EXEC_STATE_KEY: sorted(checked),
         "last_run_utc": utc_now().isoformat(),
     })
 
@@ -238,6 +327,7 @@ def enrich_garmin(max_per_run: int = 500) -> Dict[str, Any]:
         "enriched": enriched_count,
         "errors": error_count,
         "total_enriched": len(enriched_ids),
+        "execution": exec_stats,
     }
 
 

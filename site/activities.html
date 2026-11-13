@@ -228,6 +228,31 @@
       white-space: nowrap;
     }
 
+    .te-help, .ex-badge { cursor: help; }
+
+    /* one-line note preview, left of the badges */
+    .row-note {
+      max-width: 260px;
+      font-size: 0.68rem;
+      font-style: italic;
+      color: var(--text-muted);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .note-block {
+      white-space: pre-wrap;
+      overflow-wrap: anywhere;
+      font-size: 0.8rem;
+      line-height: 1.6;
+      background: #0d1626;
+      border-left: 3px solid var(--accent);
+      border-radius: 4px;
+      padding: 0.6rem 0.8rem;
+      margin-bottom: 1rem;
+    }
+
     .expand-icon {
       color: var(--text-dim);
       font-size: 0.75rem;
@@ -254,6 +279,7 @@
     @media (max-width: 600px) {
       .detail-grid { grid-template-columns: 1fr; }
       .row-main { grid-template-columns: 90px 1fr auto; gap: 0.5rem; }
+      .row-note { display: none; }
     }
 
     .detail-section-title {
@@ -270,7 +296,7 @@
 
     .zone-row {
       display: grid;
-      grid-template-columns: 55px 1fr 55px;
+      grid-template-columns: 7.6rem 1fr 3.6rem;
       align-items: center;
       gap: 0.4rem;
     }
@@ -507,6 +533,16 @@
     if (val >= 1) return 'Minor';
     return 'No benefit';
   }
+  // Aerobic Training Effect (Garmin / Firstbeat), 0-5: how much the session improves aerobic fitness.
+  var ATE_HELP = 'Aerobic Training Effect (0-5), dari Garmin/Firstbeat: seberapa besar sesi ini meningkatkan kebugaran aerobik. '
+    + '0-0.9 tanpa efek, 1.0-1.9 ringan, 2.0-2.9 mempertahankan, 3.0-3.9 meningkatkan, 4.0-4.9 sangat meningkatkan, 5.0 berlebihan.';
+  // Execution Score = Garmin directWorkoutComplianceScore, for structured / Garmin Coach workouts.
+  var EX_HELP = 'Execution Score (0-100) dari Garmin: seberapa sesuai pelaksanaan sesi dengan target latihan terstruktur / Garmin Coach. '
+    + 'Warna hanya panduan visual.';
+  function exColor(v) {
+    return v >= 90 ? '#4ade80' : v >= 75 ? '#a3e635' : v >= 60 ? '#fbbf24' : '#fb923c';
+  }
+
 
   function teColor(val) {
     if (val === undefined || val === null) return '#64748b';
@@ -634,7 +670,8 @@
 
     const hasHrZones = act.hr_zones && act.hr_zones.length > 0;
     const hasSplits  = act.splits && act.splits.length > 0;
-    const hasDetail  = hasHrZones || hasSplits;
+    const note       = (act.note || '').trim();
+    const hasDetail  = hasHrZones || hasSplits || !!note;
 
     // Extra stats
     const extras = [];
@@ -649,10 +686,24 @@
     if (act.avg_ground_contact) extras.push({ v: act.avg_ground_contact + ' ms', l: 'GCT' });
 
     const teHtml = teStr ? [
-      '<div class="te-badge" style="color:' + teColor(teVal) + ';border-color:' + teColor(teVal) + '22;">',
+      '<div class="te-badge te-help" title="' + escHtml(ATE_HELP) + '" style="color:' + teColor(teVal) + ';border-color:' + teColor(teVal) + '22;">',
       'ATE ' + teStr,
       '</div>',
     ].join('') : '';
+
+    const exVal  = act.execution_score;
+    const exHtml = (exVal !== undefined && exVal !== null) ? [
+      '<div class="te-badge ex-badge" title="' + escHtml(EX_HELP) + '" style="color:' + exColor(exVal) + ';border-color:' + exColor(exVal) + '22;">',
+      'EX ' + exVal,
+      '</div>',
+    ].join('') : '';
+
+    const noteHtml = note
+      ? '<div class="row-note" title="' + escHtml(note) + '">' + escHtml(note.split('\n')[0]) + '</div>'
+      : '';
+    const noteBlock = note
+      ? '<div class="detail-section-title">Catatan</div><div class="note-block">' + escHtml(note) + '</div>'
+      : '';
 
     const statsHtml = [
       '<div class="stat"><span class="stat-value">' + escHtml(distStr) + '</span><span class="stat-label">distance</span></div>',
@@ -695,6 +746,7 @@
       }
       detailHtml = [
         '<div class="row-detail">',
+        noteBlock,
         gridHtml,
         extraHtml,
         '</div>',
@@ -717,6 +769,8 @@
       '      <div class="activity-stats">' + statsHtml + '</div>',
       '    </div>',
       '    <div class="row-right">',
+      noteHtml,
+      exHtml,
       teHtml,
       expandIcon,
       '    </div>',

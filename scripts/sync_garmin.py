@@ -23,7 +23,26 @@ from sync_scope import (
     activity_start_ts as _shared_activity_start_ts,
     start_after_ts as _shared_start_after_ts,
 )
-from utils import ensure_dir, load_config, raw_activity_dir, read_json, utc_now, write_json
+from functools import lru_cache
+
+from utils import ensure_dir, load_config, notes_enabled, raw_activity_dir, read_json, utc_now, write_json
+
+NOTE_MAX_CHARS = 1500
+
+
+def _clean_note(raw: Any) -> str:
+    """The free-text note typed in Garmin Connect (`description`)."""
+    if not isinstance(raw, str):
+        return ""
+    return raw.replace("\r\n", "\n").strip()[:NOTE_MAX_CHARS]
+
+
+@lru_cache(maxsize=1)
+def _notes_on() -> bool:
+    try:
+        return notes_enabled(load_config())
+    except Exception:
+        return True
 
 RAW_DIR = raw_activity_dir("garmin")
 SUMMARY_JSON = os.path.join("data", "last_sync_summary.json")
@@ -157,6 +176,9 @@ def _normalize_activity(activity: Dict[str, Any]) -> Dict[str, Any]:
     }
     if activity_name:
         normalized["name"] = activity_name
+    note = _clean_note(activity.get("description"))
+    if note and _notes_on():
+        normalized["note"] = note
     # Extended stats from get_activities() response (captured if present)
     avg_hr = _safe_int(
         _coalesce(activity.get("averageHR"), activity.get("avgHR"))

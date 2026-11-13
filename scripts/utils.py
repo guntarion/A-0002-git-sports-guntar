@@ -113,3 +113,9 @@ def format_elevation(meters: float, unit: str) -> str:
         return f"{meters:.0f} m"
     feet = meters * 3.28084
     return f"{feet:.0f} ft"
+
+
+def notes_enabled(config) -> bool:
+    """`activities.include_notes` in config.yaml (default True). The site is public, so a
+    person's own session notes can be switched off without touching code."""
+    return bool(((config or {}).get("activities") or {}).get("include_notes", True))

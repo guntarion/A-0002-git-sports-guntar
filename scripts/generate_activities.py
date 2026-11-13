@@ -5,7 +5,7 @@ Combines normalized activity data with enriched per-activity data (splits, HR zo
 import os
 from typing import Any, Dict, List, Optional
 
-from utils import ensure_dir, load_config, normalize_source, read_json, utc_now, write_json
+from utils import ensure_dir, load_config, normalize_source, notes_enabled, read_json, utc_now, write_json
 
 NORMALIZED_PATH = os.path.join("data", "activities_normalized.json")
 ENRICHED_DIR = os.path.join("activities", "enriched", "garmin")
@@ -36,7 +36,7 @@ def _load_enriched(activity_id: str) -> Optional[Dict]:
         return None
 
 
-def _build_entry(normalized: Dict, enriched: Optional[Dict]) -> Dict:
+def _build_entry(normalized: Dict, enriched: Optional[Dict], include_notes: bool = True) -> Dict:
     distance = _safe_float(normalized.get("distance"))
     moving_time = _safe_float(normalized.get("moving_time"))
 
@@ -65,6 +65,11 @@ def _build_entry(normalized: Dict, enriched: Optional[Dict]) -> Dict:
         if val is not None:
             entry[field] = val
 
+    # Session note typed in Garmin Connect. Public site: honour the config switch even for
+    # notes already stored in earlier normalized data.
+    if normalized.get("note") and include_notes:
+        entry["note"] = normalized["note"]
+
     # Compute average pace
     avg_speed = _safe_float(normalized.get("avg_speed_mps"))
     if avg_speed > 0:
@@ -78,6 +83,8 @@ def _build_entry(normalized: Dict, enriched: Optional[Dict]) -> Dict:
 
     # Add enriched data
     if enriched:
+        if enriched.get("execution_score") is not None:
+            entry["execution_score"] = enriched["execution_score"]
         if "hr_zones" in enriched:
             entry["hr_zones"] = enriched["hr_zones"]
         if "splits" in enriched:
@@ -127,7 +134,7 @@ def generate_activities() -> None:
         if not activity_id:
             continue
         enriched = _load_enriched(activity_id) if source == "garmin" else None
-        entry = _build_entry(normalized, enriched)
+        entry = _build_entry(normalized, enriched, notes_enabled(config))
         activities.append(entry)
 
     # Sort most recent first

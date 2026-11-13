@@ -21,9 +21,9 @@
       --bg:#0f172a;--card:#1e293b;--card2:#243048;--border:#334155;
       --text:#f1f5f9;--muted:#94a3b8;--accent:#00bbf9;
       /* Sport colours — the CVD-validated dark-surface categorical steps. */
-      --s-run:#d55181; --s-walk:#3987e5; --s-cycle:#c98500;
+      --s-run:#c77dff; --s-walk:#3987e5; --s-cycle:#c98500;
       --s-trail:#199e70; --s-hike:#d95926;
-      --s-multi:#9085e9; --s-other:#94a3b8;
+      --s-multi:#22d3ee; --s-other:#94a3b8;
     }
     *{margin:0;padding:0;box-sizing:border-box}
     html,body{height:100%}
@@ -157,12 +157,12 @@
 
   var API = (window.GS_API_BASE || '/api').replace(/\/$/, '');
   var SPORT = {
-    running:       { label: 'Running',  color: 'var(--s-run)',   hex: '#d55181' },
+    running:       { label: 'Running',  color: 'var(--s-run)',   hex: '#c77dff' },
     walking:       { label: 'Walking',  color: 'var(--s-walk)',  hex: '#3987e5' },
     cycling:       { label: 'Cycling',  color: 'var(--s-cycle)', hex: '#c98500' },
     trail_running: { label: 'Trail',    color: 'var(--s-trail)', hex: '#199e70' },
     hiking:        { label: 'Hiking',   color: 'var(--s-hike)',  hex: '#d95926' },
-    multi_sport:   { label: 'Multisport', color: 'var(--s-multi)', hex: '#9085e9' },
+    multi_sport:   { label: 'Multisport', color: 'var(--s-multi)', hex: '#22d3ee' },
     other:         { label: 'Other',    color: 'var(--s-other)', hex: '#94a3b8' }
   };
   function sportOf(t) {
@@ -218,7 +218,7 @@
         // Casing underneath + bright line on top reads clearly on a dark map.
         L.polyline(a.route, { color: '#000', weight: 5, opacity: .35, lineJoin: 'round' }).addTo(group);
         var line = L.polyline(a.route, {
-          color: sp.hex, weight: 2.5, opacity: .9, lineJoin: 'round', lineCap: 'round'
+          color: sp.hex, weight: 3, opacity: .95, lineJoin: 'round', lineCap: 'round'
         }).addTo(group);
         line.on('mouseover', function () { line.setStyle({ weight: 5, opacity: 1 }); });
         line.on('mouseout', function () { line.setStyle({ weight: 2.5, opacity: .9 }); });
