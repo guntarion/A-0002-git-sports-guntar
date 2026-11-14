@@ -9105,5 +9105,39 @@
     "start_date_local": "2026-11-13T17:34:29",
     "type": "Ride",
     "year": 2026
+  },
+  {
+    "aerobic_te": 0.2,
+    "avg_hr": 104,
+    "calories": 30,
+    "date": "2026-11-14",
+    "distance": 0.0,
+    "elevation_gain": 0.0,
+    "id": "25070997538",
+    "max_hr": 122,
+    "moving_time": 195.0,
+    "name": "Jump Rope",
+    "raw_activity_type": "jump_rope",
+    "raw_type": "jump_rope",
+    "start_date_local": "2026-11-14T09:02:54",
+    "type": "jump_rope",
+    "year": 2026
+  },
+  {
+    "aerobic_te": 0.3,
+    "avg_hr": 98,
+    "calories": 67,
+    "date": "2026-11-14",
+    "distance": 0.0,
+    "elevation_gain": 0.0,
+    "id": "25071058115",
+    "max_hr": 128,
+    "moving_time": 900.2670288085938,
+    "name": "Strength",
+    "raw_activity_type": "strength_training",
+    "raw_type": "strength_training",
+    "start_date_local": "2026-11-14T09:09:37",
+    "type": "WeightTraining",
+    "year": 2026
   }
 ]
