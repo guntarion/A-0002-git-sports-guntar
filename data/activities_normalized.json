@@ -9139,5 +9139,30 @@
     "start_date_local": "2026-11-14T09:09:37",
     "type": "WeightTraining",
     "year": 2026
+  },
+  {
+    "aerobic_te": 3.2,
+    "anaerobic_te": 2.4,
+    "avg_cadence": 143,
+    "avg_ground_contact": 289,
+    "avg_hr": 145,
+    "avg_speed_mps": 2.224,
+    "avg_stride_len": 89.88,
+    "avg_vertical_osc": 7.9,
+    "calories": 416,
+    "date": "2026-11-15",
+    "distance": 5605.68994140625,
+    "elevation_gain": 83.0,
+    "id": "25081145865",
+    "max_hr": 180,
+    "moving_time": 2512.087001800537,
+    "name": "Training Sesi # 34 - Super Interval",
+    "note": "SE = 73\nPB 400m on 5.03 and \u00bd mile on 5,37 \nSetelah set ke 3 pasti jalan setelah run \nMasih pilek tanpa greges",
+    "raw_activity_type": "running",
+    "raw_type": "running",
+    "start_date_local": "2026-11-15T05:25:11",
+    "type": "Run",
+    "vo2_max": 42.0,
+    "year": 2026
   }
 ]
