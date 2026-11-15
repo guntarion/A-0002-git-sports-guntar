@@ -160,9 +160,6 @@
 </header>
 
 <div class="page-body">
-  <!-- Distinct id: this page already ships a #aiPanel for the daily AI Coach,
-       and its render does panel.innerHTML=..., which wiped this one out. -->
-  <div id="gsAnalysisPanel"></div>
   <div class="filters" id="filters">
     <span class="filter-label">Type</span>
     <button class="fbtn active" data-type="running">Running</button>
@@ -171,8 +168,14 @@
     <span class="filter-label">Year</span>
     <div id="yearFilters"></div>
   </div>
-  <div id="aiPanel"></div>
   <div id="content"><div class="error-msg">Loading…</div></div>
+  <div id="gphHost"></div>
+
+  <!-- AI panels sit below every chart: read the data first, then the interpretation.
+       Distinct ids: #aiPanel is the daily AI Coach and its render does
+       panel.innerHTML=..., which wiped #gsAnalysisPanel out when they shared one. -->
+  <div id="gsAnalysisPanel"></div>
+  <div id="aiPanel"></div>
 </div>
 
 <script>
@@ -422,6 +425,7 @@ function render(){
   var acts=filtered().slice().sort(function(a,b){return a.date<b.date?-1:1;});
   var content=document.getElementById('content');
   if(!acts.length){content.innerHTML='<div class="error-msg">No activities match the filter.</div>';return;}
+  if(window.GSPaceHR)GSPaceHR.mount(document.getElementById('gphHost'),{activities:acts,title:'Efisiensi: pace vs detak jantung',note:'Apakah HR yang sama kini memberi pace lebih cepat, atau pace yang sama kini terasa lebih ringan?'});
 
   var unit=S.units.distance,dl=unit==='km'?'km':'mi';
   var runActs=acts.filter(isRun).filter(function(a){return a.distance>500;});
@@ -611,6 +615,7 @@ Promise.all([
 });
 </script>
   <script src="nav.js"></script>
+  <script src="pacehr.js"></script>
   <script src="analysis.js"></script>
   <script>
     GSAnalysis.mount(document.getElementById("gsAnalysisPanel"), {

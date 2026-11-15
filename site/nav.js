@@ -27,6 +27,7 @@
     body:  '<rect x="3" y="3" width="18" height="18" rx="3"/><path d="M8 10a4 4 0 0 1 8 0"/><path d="M12 10l2.2-2.4"/>',
     map:   '<path d="M21 10c0 6-9 12-9 12s-9-6-9-12a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/>',
     jrn:   '<path d="M4 4a2 2 0 0 1 2-2h13v18H6a2 2 0 0 0-2 2V4z"/><path d="M9 7h7M9 11h7"/>',
+    coach: '<circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 3.5-7 8-7s8 3 8 7"/><path d="M9 8l2 2 4-4"/>',
     todo:  '<path d="M9 11l3 3 8-8"/><path d="M20 12v7a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h9"/>'
   };
 
@@ -36,6 +37,7 @@
     ['activities.html',  'Activities',  'Act',  I.act],
     ['analytics.html',   'Analytics',   'Anly', I.anal],
     ['records.html',     'Records',     'Rec',  I.rec],
+    ['coaching.html',    'Coaching',    'Coach', I.coach],
     ['performance.html', 'Performance', 'Perf', I.perf],
     ['wellness.html',    'Wellness',    'Well', I.well],
     ['body.html',        'Body',        'Body', I.body],

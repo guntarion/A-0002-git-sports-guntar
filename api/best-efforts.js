@@ -27,6 +27,31 @@ export default async function handler(req, res) {
 
   try {
     const url = new URL(req.url, 'http://x');
+
+    // ?history=1 -> every activity's best per distance, oldest first, for progress charts.
+    // Small table (one row per run per distance), so no paging.
+    if (url.searchParams.get('history')) {
+      const h = await query(
+        `SELECT distance_key, activity_id, to_char(date, 'YYYY-MM-DD') AS date, activity_name, activity_type,
+                distance_m, duration_s, pace_secs_per_km
+           FROM best_efforts ORDER BY distance_key, date, activity_id`
+      );
+      const iso0 = (d) => (d instanceof Date ? d.toISOString().slice(0, 10) : d);
+      const series = {};
+      for (const r of h.rows) {
+        (series[r.distance_key] ||= []).push({
+          activity_id: r.activity_id,
+          date: iso0(r.date),
+          name: r.activity_name,
+          type: r.activity_type,
+          duration_s: Number(r.duration_s),
+          pace_secs_per_km: r.pace_secs_per_km === null ? null : Number(r.pace_secs_per_km),
+        });
+      }
+      return sendJson(res, 200, {
+        distances: ORDER.map(([key, label, metres]) => ({ key, label, distance_m: metres, efforts: series[key] || [] })),
+      });
+    }
     let top = parseInt(url.searchParams.get('top') || '5', 10);
     if (!Number.isFinite(top) || top < 1) top = 5;
     if (top > 25) top = 25;

@@ -15,6 +15,7 @@
   <meta name="description" content="Turn your Garmin activities into a GitHub-style dashboard: activity heatmaps, Running Economy, best efforts, sleep and HRV trends, and route maps — updated daily." />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&display=swap" />
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
   <style>
     *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
     :root{
@@ -41,6 +42,16 @@
     .fsep{width:1px;height:20px;background:var(--border);margin:0 4px}
 
     .section{margin-bottom:24px}
+    .prog-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,340px),1fr));gap:14px}
+    .prog-card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:14px}
+    .prog-head{display:flex;align-items:baseline;gap:8px;flex-wrap:wrap}
+    .prog-name{font-size:14px;font-weight:700}
+    .prog-pr{font-size:18px;font-weight:700;color:var(--gold);margin-left:auto}
+    .prog-sub{font-size:11px;color:var(--muted);margin:2px 0 8px;line-height:1.5}
+    .prog-good{color:var(--green);font-weight:700}.prog-bad{color:var(--orange);font-weight:700}
+    .prog-chart{position:relative;height:210px}
+    .prog-bar{display:flex;gap:6px;align-items:center;flex-wrap:wrap;margin-bottom:12px}
+    .prog-bar .lbl{font-size:11px;color:var(--muted)}
     .sec-title{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin-bottom:10px;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
     .sec-sub{margin-left:auto;font-size:10px;font-weight:400;color:var(--muted)}
     .badge-count{background:rgba(0,187,249,.15);color:var(--accent);border-radius:10px;padding:1px 7px;font-size:10px}
@@ -585,6 +596,154 @@ function buildBestEfforts(){
   return html;
 }
 
+
+/* ── Progress: how much better have I become? ─────────────────────────────
+   One chart per distance. Dots = the best time of every run (all-time history, from
+   /api/best-efforts?history=1; the 1 km split series is built from activities.json splits).
+   Gold step line = the record at that moment, so it can only fall. The y-axis is reversed
+   so that UP always means FASTER. The range buttons only change what is drawn: the record
+   line is computed over ALL history first, so a short range still starts at the record you
+   held on its first day instead of pretending it began there. */
+var HIST=null;            // /api/best-efforts?history=1
+var PROG={range:0,charts:[]};
+var PROG_DISTS=[
+  {key:'split1k',label:'Best 1 km split',sub:'split 1 km tercepat dalam sebuah lari'},
+  {key:'400m',label:'400 m'},{key:'half_mile',label:'½ mile'},{key:'1k',label:'1 km'},
+  {key:'1mile',label:'1 mile'},{key:'5k',label:'5 km'},{key:'10k',label:'10 km'}
+];
+function isTreadmill(a){return /treadmill/i.test((a.raw_type||'')+' '+(a.type||''));}
+function progSeries(key){
+  var out=[];
+  if(key==='split1k'){
+    S.raw.forEach(function(a){
+      if(!isRun(a)||isTreadmill(a)||!a.date)return;
+      var best=null;
+      (a.splits||[]).forEach(function(sp){
+        var d=sp.distance||0,p=sp.pace_secs_per_km;
+        if(d>=900&&d<=1100&&p>0&&p<900&&(best===null||p<best))best=p;
+      });
+      if(best!==null)out.push({date:a.date,sec:best,name:a.name||''});
+    });
+  }else if(HIST){
+    var dd=HIST.distances.filter(function(x){return x.key===key;})[0];
+    (dd?dd.efforts:[]).forEach(function(e){if(e.date&&e.duration_s>0)out.push({date:e.date,sec:e.duration_s,name:e.name||''});});
+  }
+  return out.sort(function(a,b){return a.date<b.date?-1:a.date>b.date?1:a.sec-b.sec;});
+}
+function dMs(s){return Date.parse(s+'T00:00:00');}
+function fDay(s){var p=s.split('-');return parseInt(p[2])+' '+MONTHS[+p[1]-1]+' '+p[0];}
+function pctTxt(from,to){var v=(to-from)/from*100;return (v<=0?'−':'+')+Math.abs(v).toFixed(1)+'%';}
+
+/* Start of the "dense" history: walking back from the newest run, stop at the first gap > 180 days.
+   One stray run years ago would otherwise stretch the x-axis and squash everything recent. */
+function denseStart(all){
+  var t=all.map(function(e){return dMs(e.date);}).sort(function(a,b){return a-b;});
+  for(var i=t.length-1;i>0;i--){if(t[i]-t[i-1]>180*864e5)return t[i];}
+  return t[0];
+}
+function progCard(dist){
+  var all=progSeries(dist.key);
+  var id='prog_'+dist.key;
+  if(!all.length){
+    return '<div class="prog-card" style="opacity:.5"><div class="prog-head"><span class="prog-name">'+escH(dist.label)+'</span></div>'
+      +'<div class="prog-sub">Belum ada data untuk jarak ini.</div></div>';
+  }
+  var dense=denseStart(all),skipped=all.filter(function(e){return dMs(e.date)<dense;}).length;
+  all=all.filter(function(e){return dMs(e.date)>=dense;});
+  // record history over all (dense) data
+  var rec=[],cur=Infinity;
+  all.forEach(function(e){if(e.sec<cur){cur=e.sec;rec.push(e);}});
+  var first=all[0],pr=rec[rec.length-1];
+  var start=PROG.range?Date.now()-PROG.range*864e5:0;
+  var inR=rec.filter(function(e){return dMs(e.date)>=start;});
+  var before=rec.filter(function(e){return dMs(e.date)<start;});
+  var atStart=before.length?before[before.length-1].sec:(inR.length?inR[0].sec:pr.sec);
+  var sub;
+  if(first.date===pr.date||rec.length===1){
+    sub='Baru satu catatan ('+fDay(first.date)+'). Rekor belum bisa dibandingkan.';
+  }else{
+    sub='Dari <b>'+fmtDur(first.sec)+'</b> ('+fDay(first.date)+') → <b>'+fmtDur(pr.sec)+'</b> ('+fDay(pr.date)+') · <span class="prog-good">'+pctTxt(first.sec,pr.sec)+'</span> · '+(rec.length-1)+' rekor baru';
+    if(PROG.range){
+      var nIn=inR.length;
+      sub+='<br>Rentang ini: '+(nIn?'<b>'+fmtDur(atStart)+'</b> → <b>'+fmtDur(pr.sec)+'</b> · <span class="'+(pr.sec<atStart?'prog-good':'')+'">'+pctTxt(atStart,pr.sec)+'</span> · '+nIn+' rekor baru':'tidak ada rekor baru');
+    }
+  }
+  return '<div class="prog-card"><div class="prog-head"><span class="prog-name">'+escH(dist.label)+'</span>'
+    +'<span class="prog-pr" title="rekor saat ini">'+(dist.key==='split1k'?fmtPace(pr.sec):fmtDur(pr.sec))+'</span></div>'
+    +'<div class="prog-sub">'+(dist.sub?escH(dist.sub)+'<br>':'')+sub+'</div>'
+    +(skipped?'<div class="prog-sub" style="margin:0 0 4px">'+skipped+' catatan lama (sebelum jeda panjang) tidak digambar agar grafik terbaca.</div>':'')
+    +'<div class="prog-chart"><canvas id="'+id+'"></canvas></div></div>';
+}
+
+function buildProgress(){
+  var html='<div class="sec-title">Progress rekor <span class="badge-count">sepanjang waktu</span>'
+    +'<span style="margin-left:auto;font-size:10px;font-weight:400;color:var(--muted)">↑ = lebih cepat · titik = tiap lari · garis emas = rekor saat itu</span></div>';
+  html+='<div class="prog-bar"><span class="lbl">Rentang</span>'
+    +[[90,'3 bln'],[180,'6 bln'],[365,'1 thn'],[0,'Semua']].map(function(r){
+      return '<button class="fbtn'+(PROG.range===r[0]?' active':'')+'" data-prange="'+r[0]+'">'+r[1]+'</button>';}).join('')
+    +'<span class="lbl" style="margin-left:8px">Filter periode / Zone 2 / tahun di atas tidak berlaku di tab ini.</span></div>';
+  if(!HIST)html+='<div style="font-size:11px;color:var(--muted);margin-bottom:10px">Memuat riwayat best effort…</div>';
+  html+='<div class="prog-grid">'+PROG_DISTS.map(progCard).join('')+'</div>';
+  html+='<div style="font-size:10px;color:var(--muted);margin-top:12px;line-height:1.6">'
+    +'<b>Best 1 km split</b> = split 1 km penuh tercepat di dalam sebuah lari (900–1100 m, treadmill dikecualikan). '
+    +'<b>Best effort</b> = segmen tercepat di mana pun dalam lari (jendela bergulir pada aliran jarak–waktu), sehingga PB 400 m pada sesi interval ikut terhitung.</div>';
+  return html;
+}
+
+function drawProgress(){
+  PROG.charts.forEach(function(c){c.destroy();});PROG.charts=[];
+  if(!window.Chart)return;
+  var start=PROG.range?Date.now()-PROG.range*864e5:0;
+  PROG_DISTS.forEach(function(dist){
+    var cv=document.getElementById('prog_'+dist.key);if(!cv)return;
+    var all=progSeries(dist.key);if(!all.length)return;
+    var pace=dist.key==='split1k';
+    var fmt=pace?fmtPace:fmtDur;
+    var dense=denseStart(all);
+    all=all.filter(function(e){return dMs(e.date)>=dense;});
+    var cur=Infinity,recIdx={},line=[],priorBest=null;
+    all.forEach(function(e,i){
+      var t=dMs(e.date);
+      if(e.sec<cur){cur=e.sec;recIdx[i]=true;if(t>=start)line.push({x:t,y:e.sec});else if(t>=dense)priorBest=e.sec;}
+    });
+    var tEnd=Date.now();
+    var tStart=Math.max(start,dense);
+    var pts=[],prs=[];
+    all.forEach(function(e,i){
+      var t=dMs(e.date);if(t<start||t<dense)return;
+      var o={x:t,y:e.sec,name:e.name};
+      (recIdx[i]?prs:pts).push(o);
+    });
+    // record line: value held on day 1 of the range -> each new record -> today
+    var step=[];
+    if(priorBest!==null)step.push({x:tStart,y:priorBest});
+    line.forEach(function(p){
+      if(step.length)step.push({x:p.x,y:step[step.length-1].y});   // hold, then drop
+      step.push(p);
+    });
+    if(step.length)step.push({x:tEnd,y:step[step.length-1].y});
+    var xs=pts.concat(prs).map(function(p){return p.x;}).concat(step.map(function(p){return p.x;}));
+    var muted='#94a3b8',grid='rgba(148,163,184,.12)';
+    var ch=new Chart(cv,{data:{datasets:[
+      {type:'scatter',label:'lari',data:pts,backgroundColor:'rgba(148,163,184,.55)',pointRadius:3},
+      {type:'scatter',label:'rekor baru',data:prs,backgroundColor:'#f59e0b',borderColor:'#f59e0b',pointRadius:5,pointStyle:'rectRot'},
+      {type:'line',label:'rekor',data:step,borderColor:'#f59e0b',borderWidth:2,pointRadius:0,stepped:false}
+    ]},options:{responsive:true,maintainAspectRatio:false,animation:false,
+      interaction:{mode:'nearest',intersect:true},
+      scales:{
+        x:{type:'linear',min:xs.length?Math.min.apply(null,xs)-864e5*2:undefined,max:tEnd+864e5*2,
+           ticks:{color:muted,maxTicksLimit:5,callback:function(v){var t=new Date(v);return MONTHS[t.getMonth()]+" '"+String(t.getFullYear()).slice(2);}},grid:{color:grid}},
+        y:{reverse:true,ticks:{color:muted,callback:function(v){return fmt(v);}},grid:{color:grid}}
+      },
+      plugins:{legend:{display:false},tooltip:{filter:function(c){return c.dataset.type==='scatter';},callbacks:{
+        label:function(c){var p=c.raw,t=new Date(p.x);
+          return (c.dataset.label==='rekor baru'?'🏅 ':'')+fmt(p.y)+(pace?'':' ('+fmtPace(p.y/(dist.key==='400m'?.4:dist.key==='half_mile'?.804672:dist.key==='1mile'?1.609344:dist.key==='5k'?5:dist.key==='10k'?10:1))+')')
+            +' · '+t.getDate()+' '+MONTHS[t.getMonth()]+' '+t.getFullYear()+' · '+(p.name||'');}}}}
+    }});
+    PROG.charts.push(ch);
+  });
+}
+
 function render(){
   var runs=getFiltered();
   var content=document.getElementById('content');
@@ -607,11 +766,14 @@ function render(){
   var beCount=BEST?BEST.distances.filter(function(d){return d.best;}).length:0;
   html+='<button class="btab'+(S.band===5?' active':'')+'" data-band="5">Best Efforts'
       + (BEST?' <span class="badge-count">'+beCount+'</span>':'')+'</button>';
+  html+='<button class="btab'+(S.band===6?' active':'')+'" data-band="6">📈 Progress</button>';
   html+='</div>';
 
   // 3. Leaderboard
   html+='<div class="section">';
-  if(S.band===5){
+  if(S.band===6){
+    html+=buildProgress();
+  }else if(S.band===5){
     html+=buildBestEfforts();
   }else if(S.band<4){
     var lb=getLB(runs,S.band);
@@ -639,6 +801,13 @@ function render(){
   html+=buildSplitAnalysis(runs);
 
   content.innerHTML=html;
+  PROG.charts.forEach(function(c){c.destroy();});PROG.charts=[];
+  if(S.band===6){
+    drawProgress();
+    document.querySelectorAll('[data-prange]').forEach(function(b){
+      b.addEventListener('click',function(){PROG.range=+b.dataset.prange;render();});
+    });
+  }
 
   // Re-attach tab listeners
   document.querySelectorAll('[data-band]').forEach(function(btn){
@@ -675,6 +844,11 @@ document.getElementById('z2Btn').addEventListener('click',function(){
 });
 
 /* ── Load ── */
+fetch(((window.GS_API_BASE||'/api').replace(/\/$/,''))+'/best-efforts?history=1')
+  .then(function(r){return r.ok?r.json():null;})
+  .then(function(j){ HIST=j; if(S.raw&&S.raw.length&&S.band===6) render(); })
+  .catch(function(){ HIST=null; });
+
 fetch(((window.GS_API_BASE||'/api').replace(/\/$/,''))+'/best-efforts?top=5')
   .then(function(r){return r.ok?r.json():null;})
   .then(function(j){ BEST=j; if(S.raw&&S.raw.length) render(); })

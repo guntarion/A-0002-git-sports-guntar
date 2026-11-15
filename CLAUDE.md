@@ -76,6 +76,7 @@ Every DB/AI stage is **non-fatal** — a failure there must never break the acti
 | **Performance** | `site/performance.html` | **`/api/performance`** | Garmin health metrics + derived sports-science metrics over time |
 | **Wellness** | `site/wellness.html` | **`/api/performance`** | Sleep stages, Body Battery, RHR, steps, stress, PRs |
 | **Body** | `site/body.html` | **`/api/body`** (auth-gated) | Weight/BMI, home blood pressure, insights, cross-metric correlations |
+| **Coaching** | `site/coaching.html` | `activities.json` | Garmin Coach sessions (`Training Sesi # N` in the activity name): Execution Score trend, pace/HR, easy-run efficiency |
 | **Map** | `site/map.html` | **`/api/locations`** | Session locations + GPS routes (auth-gated) |
 | Journal | `site/journal.html` | **`/api/journal`** | Markdown training journal |
 | Todos | `site/todos.html` | **`/api/todos`** | Action items |
@@ -137,6 +138,7 @@ Schema reference: `sql/schema_app.sql` (also applied lazily by the API and the s
 | `scripts/sync_locations.py` | Session coordinates (bulk) + GPS routes (`--routes`, resumable) |
 | `scripts/garmin_login_local.py` | Interactive local Garmin login (MFA-aware) |
 | `scripts/vercel_build.sh` | Vercel build step: hydrate `site/*.json` from `dashboard-data` |
+| `site/pacehr.js` | Shared pace-vs-HR panel (analytics + coaching); full-km splits only, needs Chart.js |
 | `site/nav.js` | **The** navigation component — add new pages to its `PAGES` list, not to each HTML file |
 | `docs/performance-metrics.md` | **Definitions + formulas for every Performance metric** |
 | `docs/body-metrics.md` | Definitions, thresholds and caveats for the Body page |
@@ -163,6 +165,8 @@ Applied consistently across frontend and backend:
   split-pace CV ≤ 6%, no treadmill/trail
 
 ## Gotchas
+
+- **Records → Progress tab** plots `/api/best-efforts?history=1` (every run's best per distance) and the 1 km split series from `activities.json`; runs before a >180-day gap are not drawn. The coaching page treats a note like `SE = 73` as Execution Score until Garmin's own `execution_score` arrives.
 
 - **Body data is private by construction.** `/api/performance` is public and filters by metric NAME, so blood
   pressure / weight must never go into `performance_metrics` — they live in their own tables served only by

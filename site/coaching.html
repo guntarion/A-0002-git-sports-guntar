@@ -1,0 +1,316 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Garmin Coach | Garmin Git</title>
+  <link rel="icon" type="image/svg+xml" href="icon.svg" />
+  <link rel="icon" type="image/png" sizes="192x192" href="icon-192.png" />
+  <link rel="apple-touch-icon" href="apple-touch-icon.png" />
+  <link rel="manifest" href="manifest.json" />
+  <meta name="theme-color" content="#0f172a" />
+  <meta name="description" content="Progress program Garmin Coach: execution score, pace vs detak jantung, dan tren tiap Training Session." />
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet" />
+  <style>
+    :root{
+      --bg:#0f172a;--card:#1e293b;--card2:#243048;--border:#334155;
+      --text:#f1f5f9;--muted:#94a3b8;--accent:#00bbf9;--teal:#00f5d4;--purple:#a78bfa;--gold:#f59e0b;
+      --green:#22c55e;--orange:#f97316;--red:#ef4444;
+    }
+    *{margin:0;padding:0;box-sizing:border-box}
+    body{background:var(--bg);color:var(--text);font-family:'JetBrains Mono',ui-monospace,monospace;font-size:13px;min-height:100vh;padding:0 0 60px}
+    header{background:var(--card);border-bottom:1px solid var(--border);padding:14px 24px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;position:sticky;top:0;z-index:10}
+    .header-title{font-size:15px;font-weight:700}
+    .page-body{max-width:1100px;margin:0 auto;padding:20px 16px}
+    .intro{font-size:12px;color:var(--muted);line-height:1.6;margin-bottom:16px}
+    .filters{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-bottom:18px}
+    .filter-label{color:var(--muted);font-size:11px;margin-right:4px}
+    .fbtn{background:transparent;border:1px solid var(--border);color:var(--muted);font-family:inherit;font-size:11px;padding:4px 12px;border-radius:20px;cursor:pointer;transition:all .15s}
+    .fbtn:hover{border-color:var(--accent);color:var(--text)}
+    .fbtn.active{background:var(--accent);border-color:var(--accent);color:#000;font-weight:700}
+    .sec-title{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin:26px 0 10px;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+    .sec-sub{margin-left:auto;font-size:10px;font-weight:400;color:var(--muted);text-transform:none;letter-spacing:0}
+    .tiles{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:10px}
+    .tile{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:12px 14px}
+    .t-label{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.05em}
+    .t-value{font-size:22px;font-weight:700;margin-top:6px;line-height:1.1}
+    .t-unit{font-size:11px;color:var(--muted);font-weight:400}
+    .t-meta{font-size:10px;color:var(--muted);margin-top:5px;line-height:1.5}
+    .good{color:var(--green);font-weight:700}.bad{color:var(--orange);font-weight:700}.flat{color:var(--muted)}
+    .charts{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,420px),1fr));gap:12px}
+    .chart-card{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:14px}
+    .chart-title{font-size:12px;font-weight:700;margin-bottom:2px}
+    .chart-note{font-size:10px;color:var(--muted);margin-bottom:8px;line-height:1.5}
+    .chart-wrap{position:relative;height:260px}
+    .insights{display:grid;gap:8px}
+    .insight{padding:10px 14px;background:var(--card);border-radius:8px;border-left:3px solid var(--accent);font-size:12px;line-height:1.55}
+    .insight.positive{border-left-color:var(--green)}.insight.warning{border-left-color:var(--orange)}
+    .insight b{color:var(--text)}
+    .tbl-wrap{background:var(--card);border:1px solid var(--border);border-radius:10px;overflow-x:auto}
+    table.t{width:100%;border-collapse:collapse;font-size:12px}
+    table.t th{font-size:10px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);text-align:left;padding:9px 10px;border-bottom:1px solid var(--border);font-weight:600;white-space:nowrap}
+    table.t td{padding:8px 10px;border-bottom:1px solid rgba(51,65,85,.5);white-space:nowrap}
+    table.t tr.row{cursor:pointer}
+    table.t tr.row:hover td{background:rgba(148,163,184,.06)}
+    table.t .r{text-align:right}
+    .note-row td{white-space:pre-wrap;background:rgba(0,0,0,.18);color:var(--muted);line-height:1.6;font-size:12px}
+    .pill{display:inline-block;padding:2px 8px;border-radius:10px;font-size:10px;font-weight:700}
+    .error-msg{color:var(--muted);padding:30px;text-align:center;line-height:1.7}
+    .help{font-size:10px;color:var(--muted);line-height:1.7;margin-top:22px;padding-top:12px;border-top:1px solid var(--border)}
+    .help b{color:var(--text)}
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="header-title">Garmin Coach</div>
+</header>
+
+<div class="page-body">
+  <div class="intro">
+    Semua sesi yang diberi nama <b>Training Sesi #N</b> (program Garmin Coach). Tujuannya satu: melihat apakah Anda
+    <b>benar-benar makin baik</b> — pelaksanaan sesi makin sesuai target, dan tubuh makin efisien (pace lebih cepat pada detak jantung yang sama).
+  </div>
+
+  <div class="filters" id="filters"></div>
+  <div id="main"><div class="error-msg">Memuat…</div></div>
+  <div id="gphHost"></div>
+  <div id="after"></div>
+</div>
+
+<script>
+function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+var MON=['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Agu','Sep','Okt','Nov','Des'];
+function fDay(s){var p=s.split('-');return parseInt(p[2])+' '+MON[+p[1]-1]+' '+p[0];}
+function fDayS(s){var p=s.split('-');return parseInt(p[2])+' '+MON[+p[1]-1];}
+function fP(s){if(!s||!isFinite(s))return'—';var m=Math.floor(s/60),x=Math.round(s%60);if(x===60){m++;x=0;}return m+':'+(x<10?'0':'')+x;}
+function avg(a){return a.length?a.reduce(function(x,y){return x+y;},0)/a.length:null;}
+function med(a){return GSPaceHR.median(a);}
+function ma(arr,n){return arr.map(function(_,i){var s=arr.slice(Math.max(0,i-n+1),i+1).filter(function(v){return v!=null;});return s.length?avg(s):null;});}
+
+/* ── what counts as a Garmin Coach session ───────────────────────────────── */
+var RE=/Training\s+Se\w*\s*#\s*(\d+)\s*[-–:]?\s*(.*)$/i;
+var TYPES=['Easy','Long Easy','Recovery','Tempo','Interval','Time Trial'];
+var EASY={'Easy':1,'Long Easy':1,'Recovery':1};
+var TYPE_COLOR={'Easy':'#22c55e','Long Easy':'#00bbf9','Recovery':'#64748b','Tempo':'#f59e0b','Interval':'#ef4444','Time Trial':'#a78bfa','Lainnya':'#94a3b8'};
+function classify(title){
+  var t=title.toLowerCase();
+  if(/time\s*trial/.test(t))return'Time Trial';
+  if(/interval|race/.test(t))return'Interval';
+  if(/tempo/.test(t))return'Tempo';
+  if(/recovery|pemulihan/.test(t))return'Recovery';
+  if(/long/.test(t))return'Long Easy';
+  if(/easy/.test(t))return'Easy';
+  return'Lainnya';
+}
+function parseSessions(acts){
+  var out=[];
+  acts.forEach(function(a){
+    var m=RE.exec(a.name||'');
+    if(!m)return;
+    var title=(m[2]||'').trim()||'—';
+    // Execution Score: Garmin's own number when synced, else the "SE = nn" the athlete wrote in the note.
+    var ex=null,exSrc=null;
+    if(a.execution_score!=null){ex=+a.execution_score;exSrc='garmin';}
+    else{var n=/\bSE\s*=\s*(\d{1,3})\b/i.exec(a.note||'');if(n&&+n[1]<=100){ex=+n[1];exSrc='catatan';}}
+    var pace=a.avg_pace_secs_per_km||null,hr=a.avg_hr||null;
+    out.push({no:+m[1],date:a.date,name:a.name,title:title,type:classify(title),
+      dist:a.distance||0,pace:pace,hr:hr,ate:a.aerobic_te!=null?a.aerobic_te:null,
+      ex:ex,exSrc:exSrc,note:(a.note||'').trim(),
+      // aerobic efficiency = metres per minute per heartbeat-per-minute (higher = better)
+      ae:(pace&&hr)?(60000/pace)/hr:null,act:a});
+  });
+  return out.sort(function(a,b){return a.no-b.no||(a.date<b.date?-1:1);});
+}
+
+var S={all:[],type:'all',charts:[]};
+function view(){return S.type==='all'?S.all:S.all.filter(function(s){return s.type===S.type||(S.type==='easyAll'&&EASY[s.type]);});}
+
+/* ── helpers for before/after comparison ── */
+function split(arr,n){ // first n vs last n of a series (null-safe)
+  var v=arr.filter(function(x){return x!=null;});
+  if(v.length<2*n)n=Math.floor(v.length/2);
+  return n>=2?{n:n,a:v.slice(0,n),b:v.slice(-n)}:null;
+}
+function delta(a,b,lowerBetter,fmt,eps){
+  var d=b-a,cls=Math.abs(d)<eps?'flat':((d<0)===lowerBetter?'good':'bad');
+  return '<span class="'+cls+'">'+(d<0?'−':'+')+fmt(Math.abs(d))+'</span>';
+}
+function exColor(v){return v>=90?'#22c55e':v>=75?'#a3e635':v>=60?'#fbbf24':'#fb923c';}
+
+function tiles(v){
+  var h='<div class="tiles">';
+  var dist=v.reduce(function(s,x){return s+x.dist;},0)/1000;
+  h+='<div class="tile"><div class="t-label">Sesi selesai</div><div class="t-value">'+v.length+'</div><div class="t-meta">#'+v[0].no+' – #'+v[v.length-1].no+'<br>'+fDay(v[0].date)+' → '+fDay(v[v.length-1].date)+'</div></div>';
+  h+='<div class="tile"><div class="t-label">Total jarak</div><div class="t-value">'+dist.toFixed(0)+' <span class="t-unit">km</span></div><div class="t-meta">rata-rata '+(dist/v.length).toFixed(1)+' km / sesi</div></div>';
+  var exs=v.filter(function(x){return x.ex!=null;});
+  if(exs.length){
+    var sp=split(exs.map(function(x){return x.ex;}),5);
+    var cmp=sp?'5 terakhir '+Math.round(avg(sp.b))+' vs 5 pertama '+Math.round(avg(sp.a))+' · '+delta(avg(sp.a),avg(sp.b),false,function(d){return d.toFixed(0);},1):'';
+    h+='<div class="tile"><div class="t-label">Execution Score rata-rata</div><div class="t-value" style="color:'+exColor(avg(exs.map(function(x){return x.ex;})))+'">'+Math.round(avg(exs.map(function(x){return x.ex;})))+'</div><div class="t-meta">'+exs.length+' dari '+v.length+' sesi'+(cmp?'<br>'+cmp:'')+'</div></div>';
+  }
+  var easy=v.filter(function(x){return EASY[x.type]&&x.pace&&x.hr;});
+  var se=split(easy.map(function(x){return x.pace;}),5);
+  if(se){
+    var ea=easy.slice(0,se.n),eb=easy.slice(-se.n);
+    h+='<div class="tile"><div class="t-label">Easy run: pace</div><div class="t-value">'+fP(avg(eb.map(function(x){return x.pace;})))+' <span class="t-unit">/km</span></div>'
+      +'<div class="t-meta">vs '+fP(avg(ea.map(function(x){return x.pace;})))+' di '+se.n+' easy pertama · '+delta(avg(ea.map(function(x){return x.pace;})),avg(eb.map(function(x){return x.pace;})),true,function(d){return Math.round(d)+' dtk';},2)+'</div></div>';
+    h+='<div class="tile"><div class="t-label">Easy run: HR</div><div class="t-value">'+Math.round(avg(eb.map(function(x){return x.hr;})))+' <span class="t-unit">bpm</span></div>'
+      +'<div class="t-meta">vs '+Math.round(avg(ea.map(function(x){return x.hr;})))+' · '+delta(avg(ea.map(function(x){return x.hr;})),avg(eb.map(function(x){return x.hr;})),true,function(d){return d.toFixed(0)+' bpm';},1)+'</div></div>';
+    var ae=avg(eb.map(function(x){return x.ae;})),ae0=avg(ea.map(function(x){return x.ae;}));
+    h+='<div class="tile"><div class="t-label">Efisiensi aerobik (easy)</div><div class="t-value">'+ae.toFixed(2)+'</div><div class="t-meta">vs '+ae0.toFixed(2)+' · '+delta(ae0,ae,false,function(d){return (d/ae0*100).toFixed(1)+'%';},.005)+'<br>m/menit per bpm, makin tinggi makin baik</div></div>';
+  }
+  return h+'</div>';
+}
+
+function insights(v){
+  var L=[];
+  var exs=v.filter(function(x){return x.ex!=null;});
+  if(exs.length>=6){
+    var sp=split(exs.map(function(x){return x.ex;}),Math.min(5,Math.floor(exs.length/2)));
+    var a=avg(sp.a),b=avg(sp.b);
+    L.push({c:b>=a+2?'positive':b<=a-2?'warning':'',t:'<b>Execution Score</b>: rata-rata '+sp.n+' sesi terakhir <b>'+Math.round(b)+'</b> vs '+sp.n+' sesi pertama <b>'+Math.round(a)+'</b>'
+      +(b>=a+2?' — pelaksanaan makin sesuai target.':b<=a-2?' — lebih sering menyimpang dari target; cek apakah sesi tertentu (interval?) terlalu agresif atau terlalu longgar.':' — stabil.')});
+    var low=exs.slice().sort(function(x,y){return x.ex-y.ex;})[0],high=exs.slice().sort(function(x,y){return y.ex-x.ex;})[0];
+    L.push({c:'',t:'Skor tertinggi <b>'+high.ex+'</b> (#'+high.no+' '+esc(high.title)+'), terendah <b>'+low.ex+'</b> (#'+low.no+' '+esc(low.title)+').'});
+    var byType={};exs.forEach(function(x){(byType[x.type]=byType[x.type]||[]).push(x.ex);});
+    var ks=Object.keys(byType).filter(function(k){return byType[k].length>=2;}).sort(function(x,y){return avg(byType[y])-avg(byType[x]);});
+    if(ks.length>=2)L.push({c:'',t:'Per jenis sesi: '+ks.map(function(k){return esc(k)+' <b>'+Math.round(avg(byType[k]))+'</b> ('+byType[k].length+')';}).join(' · ')+'.'});
+  }
+  var easy=v.filter(function(x){return EASY[x.type]&&x.pace&&x.hr;});
+  var se=split(easy.map(function(x){return x.pace;}),5);
+  if(se){
+    var ea=easy.slice(0,se.n),eb=easy.slice(-se.n);
+    var dp=avg(eb.map(function(x){return x.pace;}))-avg(ea.map(function(x){return x.pace;})),dh=avg(eb.map(function(x){return x.hr;}))-avg(ea.map(function(x){return x.hr;}));
+    var txt='<b>Easy run</b>: pace '+fP(avg(ea.map(function(x){return x.pace;})))+' → <b>'+fP(avg(eb.map(function(x){return x.pace;})))+'</b>/km, HR '+Math.round(avg(ea.map(function(x){return x.hr;})))+' → <b>'+Math.round(avg(eb.map(function(x){return x.hr;})))+'</b> bpm. ';
+    if(dp<-3&&dh<=1)txt+='Lebih cepat <i>tanpa</i> HR naik — tanda kebugaran aerobik membaik.';
+    else if(dp<-3&&dh>1)txt+='Lebih cepat, tetapi HR ikut naik '+dh.toFixed(0)+' bpm: sebagian kemajuan pace dibayar dengan usaha lebih besar. Lihat panel Pace vs HR di bawah untuk perbandingan pada HR yang sama.';
+    else if(Math.abs(dp)<=3&&dh<-1)txt+='Pace sama dengan HR lebih rendah — efisiensi membaik.';
+    else if(dp>3&&dh<-2)txt+='Lebih lambat dengan HR lebih rendah — mungkin Anda menjalankan easy run benar-benar easy (sesuai tujuan).';
+    else txt+='Belum ada perubahan jelas.';
+    L.push({c:dp<-3&&dh<=1?'positive':'',t:txt});
+  }
+  if(v.length>=3){
+    var days=(Date.parse(v[v.length-1].date)-Date.parse(v[0].date))/864e5;
+    if(days>0)L.push({c:'',t:'Konsistensi: <b>'+v.length+' sesi dalam '+Math.round(days)+' hari</b> — rata-rata '+(v.length/(days/7)).toFixed(1)+' sesi / minggu.'});
+  }
+  return L.length?'<div class="sec-title">Ringkasan otomatis</div><div class="insights">'+L.map(function(i){return '<div class="insight '+(i.c||'')+'">'+i.t+'</div>';}).join('')+'</div>':'';
+}
+
+/* ── charts ── */
+var GRID='rgba(148,163,184,.12)',MUTED='#94a3b8';
+function mk(id,cfg){var c=document.getElementById(id);if(!c)return;S.charts.push(new Chart(c,cfg));}
+function labels(v){return v.map(function(s){return '#'+s.no;});}
+function baseScales(){return {x:{ticks:{color:MUTED,maxRotation:0,autoSkip:true,maxTicksLimit:14},grid:{display:false}}};}
+function tipTitle(v){return function(items){var s=v[items[0].dataIndex];return '#'+s.no+' '+s.title+' · '+fDayS(s.date);};}
+
+function drawCharts(v){
+  S.charts.forEach(function(c){c.destroy();});S.charts=[];
+  var lab=labels(v);
+  // 1. Execution Score
+  var ex=v.map(function(s){return s.ex;});
+  if(ex.some(function(x){return x!=null;})){
+    mk('cEx',{data:{labels:lab,datasets:[
+      {type:'bar',label:'Execution Score',data:ex,backgroundColor:ex.map(function(x){return x==null?'transparent':exColor(x);}),borderRadius:3,order:2},
+      {type:'line',label:'rata-rata 3 sesi',data:ma(ex,3),borderColor:'#f1f5f9',borderWidth:2,pointRadius:0,tension:.3,spanGaps:true,order:1}
+    ]},options:{responsive:true,maintainAspectRatio:false,animation:false,scales:Object.assign(baseScales(),{y:{min:0,max:100,ticks:{color:MUTED},grid:{color:GRID}}}),
+      plugins:{legend:{labels:{color:MUTED,boxWidth:12}},tooltip:{callbacks:{title:tipTitle(v),label:function(c){return c.dataset.label+': '+(c.parsed.y==null?'—':Math.round(c.parsed.y))+(c.datasetIndex===0&&v[c.dataIndex].exSrc==='catatan'?' (dari catatan)':'');}}}}}});
+  }
+  // 2. Pace & HR per session
+  mk('cPH',{data:{labels:lab,datasets:[
+    {type:'line',label:'pace /km',data:v.map(function(s){return s.pace;}),yAxisID:'yp',borderColor:'#00bbf9',backgroundColor:v.map(function(s){return TYPE_COLOR[s.type];}),pointBackgroundColor:v.map(function(s){return TYPE_COLOR[s.type];}),borderWidth:2,pointRadius:4,tension:.25,spanGaps:true},
+    {type:'line',label:'HR rata-rata',data:v.map(function(s){return s.hr;}),yAxisID:'yh',borderColor:'#ef4444',borderWidth:2,pointRadius:2,tension:.25,spanGaps:true}
+  ]},options:{responsive:true,maintainAspectRatio:false,animation:false,scales:Object.assign(baseScales(),{
+      yp:{position:'left',reverse:true,ticks:{color:'#00bbf9',callback:function(x){return fP(x);}},grid:{color:GRID},title:{display:true,text:'pace (↑ = cepat)',color:'#00bbf9'}},
+      yh:{position:'right',ticks:{color:'#ef4444'},grid:{display:false},title:{display:true,text:'HR (bpm)',color:'#ef4444'}}}),
+    plugins:{legend:{labels:{color:MUTED,boxWidth:12}},tooltip:{callbacks:{title:tipTitle(v),label:function(c){return c.dataset.label+': '+(c.datasetIndex===0?fP(c.parsed.y)+'/km':Math.round(c.parsed.y)+' bpm');}}}}}});
+  // 3. Aerobic efficiency of easy runs
+  var easy=v.filter(function(s){return EASY[s.type]&&s.ae;});
+  if(easy.length>=3){
+    var xs=easy.map(function(_,i){return i;}),ys=easy.map(function(s){return s.ae;});
+    var f=fit(xs,ys);
+    mk('cAE',{data:{labels:easy.map(function(s){return '#'+s.no;}),datasets:[
+      {type:'line',label:'efisiensi aerobik',data:ys,borderColor:'#22c55e',backgroundColor:'#22c55e',borderWidth:2,pointRadius:4,tension:.2},
+      f?{type:'line',label:'tren',data:xs.map(function(x){return f.a+f.b*x;}),borderColor:'#f59e0b',borderDash:[6,4],borderWidth:2,pointRadius:0}:{type:'line',data:[]}
+    ]},options:{responsive:true,maintainAspectRatio:false,animation:false,scales:Object.assign(baseScales(),{y:{ticks:{color:MUTED,callback:function(x){return x.toFixed(2);}},grid:{color:GRID},title:{display:true,text:'m/menit per bpm (↑ = lebih baik)',color:MUTED}}}),
+      plugins:{legend:{labels:{color:MUTED,boxWidth:12}},tooltip:{callbacks:{title:function(it){var s=easy[it[0].dataIndex];return '#'+s.no+' '+s.title+' · '+fDayS(s.date);},label:function(c){var s=easy[c.dataIndex];return c.datasetIndex===0?c.parsed.y.toFixed(3)+' · '+fP(s.pace)+'/km @ '+s.hr+' bpm':'tren';}}}}}});
+  }
+  // 4. Distance + aerobic training effect
+  mk('cLoad',{data:{labels:lab,datasets:[
+    {type:'bar',label:'jarak (km)',data:v.map(function(s){return +(s.dist/1000).toFixed(2);}),yAxisID:'yd',backgroundColor:v.map(function(s){return TYPE_COLOR[s.type]+'cc';}),borderRadius:3,order:2},
+    {type:'line',label:'Aerobic TE',data:v.map(function(s){return s.ate;}),yAxisID:'yt',borderColor:'#f1f5f9',borderWidth:2,pointRadius:3,tension:.25,spanGaps:true,order:1}
+  ]},options:{responsive:true,maintainAspectRatio:false,animation:false,scales:Object.assign(baseScales(),{
+      yd:{position:'left',beginAtZero:true,ticks:{color:MUTED},grid:{color:GRID},title:{display:true,text:'km',color:MUTED}},
+      yt:{position:'right',min:0,max:5,ticks:{color:MUTED},grid:{display:false},title:{display:true,text:'Aerobic TE (0–5)',color:MUTED}}}),
+    plugins:{legend:{labels:{color:MUTED,boxWidth:12}},tooltip:{callbacks:{title:tipTitle(v)}}}}});
+}
+function fit(xs,ys){var n=xs.length,sx=0,sy=0,sxx=0,sxy=0;for(var i=0;i<n;i++){sx+=xs[i];sy+=ys[i];sxx+=xs[i]*xs[i];sxy+=xs[i]*ys[i];}var den=n*sxx-sx*sx;if(!den)return null;var b=(n*sxy-sx*sy)/den;return{a:(sy-b*sx)/n,b:b};}
+
+function table(v){
+  var rows=v.slice().reverse().map(function(s,i){
+    var ex=s.ex!=null?'<span style="color:'+exColor(s.ex)+';font-weight:700">'+s.ex+'</span>'+(s.exSrc==='catatan'?' <span class="flat" title="angka dari catatan Anda (SE = …); Garmin belum mengirim skor">*</span>':''):'<span class="flat">—</span>';
+    var first=s.note?esc(s.note.split('\n')[0]):'';
+    return '<tr class="row" data-i="'+i+'"><td><b>#'+s.no+'</b></td><td>'+fDayS(s.date)+'</td><td><span class="pill" style="background:'+TYPE_COLOR[s.type]+'22;color:'+TYPE_COLOR[s.type]+'">'+esc(s.type)+'</span> '+esc(s.title)+'</td>'
+      +'<td class="r">'+(s.dist/1000).toFixed(1)+' km</td><td class="r">'+fP(s.pace)+'</td><td class="r">'+(s.hr||'—')+'</td><td class="r">'+(s.ate!=null?s.ate.toFixed(1):'—')+'</td><td class="r">'+ex+'</td>'
+      +'<td class="flat" style="max-width:260px;overflow:hidden;text-overflow:ellipsis">'+first+'</td></tr>'
+      +(s.note?'<tr class="note-row" id="n'+i+'" hidden><td colspan="9">'+esc(s.note)+'</td></tr>':'');
+  }).join('');
+  return '<div class="tbl-wrap"><table class="t"><thead><tr><th>#</th><th>Tanggal</th><th>Sesi</th><th class="r">Jarak</th><th class="r">Pace</th><th class="r">HR</th><th class="r">ATE</th><th class="r">EX</th><th>Catatan (klik baris)</th></tr></thead><tbody>'+rows+'</tbody></table></div>';
+}
+
+function render(){
+  var v=view();
+  var main=document.getElementById('main');
+  if(!S.all.length){
+    main.innerHTML='<div class="error-msg">Belum ada sesi berjudul <b>Training Sesi #N</b> pada data.<br>Beri nama aktivitas di Garmin Connect, mis. “Training Sesi # 12 - Easy”, lalu jalankan sync.</div>';
+    document.getElementById('gphHost').innerHTML='';return;
+  }
+  if(!v.length){main.innerHTML='<div class="error-msg">Tidak ada sesi untuk filter ini.</div>';return;}
+  var hasEx=v.some(function(s){return s.ex!=null;});
+  var h=tiles(v)+insights(v);
+  h+='<div class="sec-title">Tren per sesi <span class="sec-sub">warna = jenis sesi · arahkan kursor / sentuh untuk detail</span></div><div class="charts">';
+  if(hasEx)h+='<div class="chart-card"><div class="chart-title">Execution Score</div><div class="chart-note">Seberapa sesuai pelaksanaan sesi dengan target Garmin Coach (0–100). Garis putih = rata-rata 3 sesi.</div><div class="chart-wrap"><canvas id="cEx"></canvas></div></div>';
+  else h+='<div class="chart-card"><div class="chart-title">Execution Score</div><div class="chart-note">Belum ada skor. Garmin menilai sesi terstruktur beberapa saat setelah upload — akan muncul otomatis setelah sync berikutnya. Anda juga bisa menulis <b>SE = 73</b> di catatan aktivitas sebagai cadangan.</div></div>';
+  h+='<div class="chart-card"><div class="chart-title">Pace &amp; detak jantung rata-rata</div><div class="chart-note">Garis biru = pace (ke atas = lebih cepat), merah = HR. Pace naik sementara HR datar/turun = lebih efisien. Sesi interval/tempo memang lebih cepat &amp; lebih tinggi HR-nya; gunakan filter jenis untuk membandingkan yang sejenis.</div><div class="chart-wrap"><canvas id="cPH"></canvas></div></div>';
+  var nEasy=v.filter(function(s){return EASY[s.type]&&s.ae;}).length;
+  if(nEasy>=3)h+='<div class="chart-card"><div class="chart-title">Efisiensi aerobik — easy run</div><div class="chart-note">Kecepatan (m/menit) dibagi HR rata-rata. Naik = Anda menempuh lebih banyak jarak per detak. Hanya Easy / Long Easy / Recovery.</div><div class="chart-wrap"><canvas id="cAE"></canvas></div></div>';
+  h+='<div class="chart-card"><div class="chart-title">Jarak &amp; Aerobic Training Effect</div><div class="chart-note">Beban tiap sesi: batang = jarak, garis = Aerobic TE dari Garmin (0–5).</div><div class="chart-wrap"><canvas id="cLoad"></canvas></div></div>';
+  h+='</div>';
+  h+='<div class="sec-title">Semua sesi <span class="badge-count">'+v.length+'</span></div>'+table(v);
+  main.innerHTML=h;
+  drawCharts(v);
+  main.querySelectorAll('tr.row').forEach(function(tr){tr.addEventListener('click',function(){var n=document.getElementById('n'+tr.dataset.i);if(n)n.hidden=!n.hidden;});});
+
+  // pace vs HR on the coached sessions only (full-km splits; interval reps are ignored by the module)
+  GSPaceHR.mount(document.getElementById('gphHost'),{activities:v.map(function(s){return s.act;}),
+    title:'Garmin Coach — pace vs detak jantung',
+    note:'Easy run Anda terasa makin baik? Pilih HR atau pace target dan lihat apakah pace/HR pada titik itu bergeser.'});
+}
+
+function buildFilters(){
+  var counts={};S.all.forEach(function(s){counts[s.type]=(counts[s.type]||0)+1;});
+  var opts=[['all','Semua'],['easyAll','Easy (semua)']].concat(TYPES.filter(function(t){return counts[t];}).map(function(t){return [t,t+' '+counts[t]];}));
+  if(counts['Lainnya'])opts.push(['Lainnya','Lainnya '+counts['Lainnya']]);
+  var f=document.getElementById('filters');
+  f.innerHTML='<span class="filter-label">Jenis</span>'+opts.map(function(o){return '<button class="fbtn'+(S.type===o[0]?' active':'')+'" data-t="'+o[0]+'">'+esc(o[1])+'</button>';}).join('');
+  f.querySelectorAll('[data-t]').forEach(function(b){b.addEventListener('click',function(){S.type=b.dataset.t;buildFilters();render();});});
+}
+
+fetch('activities.json').then(function(r){if(!r.ok)throw new Error('HTTP '+r.status);return r.json();}).then(function(data){
+  S.all=parseSessions(data.activities||[]);
+  buildFilters();render();
+  var help=document.getElementById('after');
+  help.innerHTML='<div class="help"><b>Cara membaca.</b> Sesi dikenali dari nama aktivitas “Training Sesi # N – jenis”. Jenis (Easy, Long Easy, Recovery, Tempo, Interval, Time Trial) diambil dari kata di nama.'
+    +' <b>Execution Score</b> = <code>directWorkoutComplianceScore</code> Garmin; bila belum tersedia dipakai angka “SE = nn” dari catatan (ditandai *).'
+    +' <b>Efisiensi aerobik</b> = (60000 ÷ pace dtk/km) ÷ HR rata-rata. <b>Pace vs HR</b> hanya memakai split 1 km penuh agar adil: interval 200/400 m dan treadmill tidak ikut. '
+    +'Perbandingan “dulu vs kini” memakai median tanggal sebagai pembatas, jadi makin banyak sesi, makin tajam.</div>';
+}).catch(function(err){
+  document.getElementById('main').innerHTML='<div class="error-msg">Gagal memuat activities.json<br>'+esc(err.message)+'</div>';
+});
+</script>
+<script src="nav.js"></script>
+<script src="pacehr.js"></script>
+</body>
+</html>
