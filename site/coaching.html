@@ -60,6 +60,24 @@
     .error-msg{color:var(--muted);padding:30px;text-align:center;line-height:1.7}
     .help{font-size:10px;color:var(--muted);line-height:1.7;margin-top:22px;padding-top:12px;border-top:1px solid var(--border)}
     .help b{color:var(--text)}
+    .det td{white-space:normal!important;background:rgba(0,0,0,.18);padding:14px!important}
+    .dgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(112px,1fr));gap:8px;margin-bottom:12px}
+    .dstat{background:var(--card);border:1px solid var(--border);border-radius:8px;padding:8px 10px}
+    .dstat b{display:block;font-size:15px}.dstat span{font-size:10px;color:var(--muted)}
+    .dstat i{font-style:normal;font-size:10px;display:block;margin-top:2px}
+    .dcols{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,300px),1fr));gap:16px}
+    .dh{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin:0 0 6px}
+    .zr{display:flex;align-items:center;gap:8px;margin-bottom:5px;font-size:11px}
+    .zr .zl{width:92px;color:var(--muted)}.zr .zb{flex:1;height:8px;background:rgba(255,255,255,.07);border-radius:4px}
+    .zr .zb div{height:100%;border-radius:4px}.zr .zt{width:42px;text-align:right}
+    table.sp{width:100%;border-collapse:collapse;font-size:11px}
+    table.sp th{font-size:9px;color:var(--muted);text-align:right;padding:3px 6px;font-weight:600}
+    table.sp td{text-align:right;padding:3px 6px;border-top:1px solid rgba(51,65,85,.4)}
+    table.t table.sp td{padding:3px 6px;white-space:nowrap}
+    table.t table.sp th{padding:3px 6px}
+    table.sp th:first-child,table.sp td:first-child{text-align:left}
+    .dnote{white-space:pre-wrap;line-height:1.6;color:var(--text);font-size:12px;margin-top:12px;padding:10px 12px;background:var(--card);border-radius:8px}
+    .badge-count{background:rgba(0,187,249,.15);color:var(--accent);padding:1px 8px;border-radius:10px;font-size:10px}
   </style>
 </head>
 <body>
@@ -248,6 +266,38 @@ function drawCharts(v){
 }
 function fit(xs,ys){var n=xs.length,sx=0,sy=0,sxx=0,sxy=0;for(var i=0;i<n;i++){sx+=xs[i];sy+=ys[i];sxx+=xs[i]*xs[i];sxy+=xs[i]*ys[i];}var den=n*sxx-sx*sx;if(!den)return null;var b=(n*sxy-sx*sy)/den;return{a:(sy-b*sx)/n,b:b};}
 
+var ZN=['Z1 Recovery','Z2 Base','Z3 Aerobic','Z4 Threshold','Z5 VO2 Max'],ZC=['#64748b','#22c55e','#eab308','#f97316','#ef4444'];
+function fT(sec){sec=Math.round(sec||0);var h=Math.floor(sec/3600),m=Math.floor(sec%3600/60),x=sec%60;return h?h+':'+String(m).padStart(2,'0')+':'+String(x).padStart(2,'0'):m+':'+String(x).padStart(2,'0');}
+function detail(s){
+  var a=s.act,peers=S.all.filter(function(o){return o.type===s.type&&o!==s;});
+  function peer(key,lower){ // delta vs the mean of other sessions of the same kind
+    var v=peers.map(function(o){return o.act[key];}).filter(function(x){return x>0;});
+    if(v.length<2||!(a[key]>0))return'';
+    var d=a[key]-avg(v),c=Math.abs(d)<.5?'flat':((d<0)===lower?'good':'bad');
+    return '<i class="'+c+'">'+(d<0?'−':'+')+Math.abs(d).toFixed(key==='avg_stride_len'?0:1)+' vs rata-rata '+esc(s.type)+'</i>';
+  }
+  function st(val,label,extra){return val==null||val===''?'':'<div class="dstat"><b>'+val+'</b><span>'+label+'</span>'+(extra||'')+'</div>';}
+  var vr=(a.avg_vertical_osc>0&&a.avg_stride_len>0)?(a.avg_vertical_osc/a.avg_stride_len*100):null; // vertical ratio, %
+  var g='<div class="dgrid">'
+    +st((s.dist/1000).toFixed(2)+' km','jarak')+st(fT(a.moving_time),'waktu')+st(fP(s.pace)+'/km','pace rata-rata')
+    +st(s.hr?s.hr+' bpm':null,'HR rata-rata')+st(a.max_hr?a.max_hr+' bpm':null,'HR maks')
+    +st(a.elevation_gain!=null?Math.round(a.elevation_gain)+' m':null,'elevasi')+st(a.calories?a.calories+' kcal':null,'kalori')
+    +st(s.ate!=null?s.ate.toFixed(1):null,'Aerobic TE')+st(a.anaerobic_te!=null?a.anaerobic_te.toFixed(1):null,'Anaerobic TE')
+    +st(a.vo2_max||null,'VO₂ max')
+    +st(a.avg_cadence?a.avg_cadence+' spm':null,'cadence',peer('avg_cadence',false))
+    +st(a.avg_ground_contact?a.avg_ground_contact+' ms':null,'ground contact (GCT)',peer('avg_ground_contact',true))
+    +st(a.avg_stride_len?Math.round(a.avg_stride_len)+' cm':null,'panjang langkah',peer('avg_stride_len',false))
+    +st(a.avg_vertical_osc?a.avg_vertical_osc+' cm':null,'vertical oscillation',peer('avg_vertical_osc',true))
+    +st(vr!=null?vr.toFixed(1)+' %':null,'vertical ratio')
+    +'</div>';
+  var zs=a.hr_zones||[],tot=zs.reduce(function(t,z){return t+(z.seconds||0);},0),zh='';
+  if(tot>0)zh='<div class="dh">Zona HR</div>'+zs.map(function(z){var pc=Math.round(z.seconds/tot*100),i=Math.min(Math.max(z.zone-1,0),4);
+    return '<div class="zr"><div class="zl" title="mulai '+z.low_bpm+' bpm">'+ZN[i]+'</div><div class="zb"><div style="width:'+pc+'%;background:'+ZC[i]+'"></div></div><div class="zt">'+fT(z.seconds)+'</div></div>';}).join('');
+  var sp=a.splits||[],sh='';
+  if(sp.length)sh='<div class="dh">Split</div><table class="sp"><thead><tr><th>#</th><th>Jarak</th><th>Pace</th><th>HR</th><th>Elev</th></tr></thead><tbody>'
+    +sp.map(function(x,i){return '<tr><td>'+(i+1)+'</td><td>'+(x.distance>=1000?(x.distance/1000).toFixed(2)+' km':Math.round(x.distance)+' m')+'</td><td>'+fP(x.pace_secs_per_km)+'</td><td>'+(x.avg_hr||'—')+'</td><td>'+(x.elevation_gain!=null?Math.round(x.elevation_gain)+' m':'—')+'</td></tr>';}).join('')+'</tbody></table>';
+  return g+'<div class="dcols"><div>'+zh+'</div><div>'+sh+'</div></div>'+(s.note?'<div class="dh" style="margin-top:12px">Catatan</div><div class="dnote">'+esc(s.note)+'</div>':'');
+}
 function table(v){
   var rows=v.slice().reverse().map(function(s,i){
     var ex=s.ex!=null?'<span style="color:'+exColor(s.ex)+';font-weight:700">'+s.ex+'</span>'+(s.exSrc==='catatan'?' <span class="flat" title="angka dari catatan Anda (SE = …); Garmin belum mengirim skor">*</span>':''):'<span class="flat">—</span>';
@@ -255,9 +305,9 @@ function table(v){
     return '<tr class="row" data-i="'+i+'"><td><b>#'+s.no+'</b></td><td>'+fDayS(s.date)+'</td><td><span class="pill" style="background:'+TYPE_COLOR[s.type]+'22;color:'+TYPE_COLOR[s.type]+'">'+esc(s.type)+'</span> '+esc(s.title)+'</td>'
       +'<td class="r">'+(s.dist/1000).toFixed(1)+' km</td><td class="r">'+fP(s.pace)+'</td><td class="r">'+(s.hr||'—')+'</td><td class="r">'+(s.ate!=null?s.ate.toFixed(1):'—')+'</td><td class="r">'+ex+'</td>'
       +'<td class="flat" style="max-width:260px;overflow:hidden;text-overflow:ellipsis">'+first+'</td></tr>'
-      +(s.note?'<tr class="note-row" id="n'+i+'" hidden><td colspan="9">'+esc(s.note)+'</td></tr>':'');
+      +'<tr class="det" id="n'+i+'" hidden><td colspan="9">'+detail(s)+'</td></tr>';
   }).join('');
-  return '<div class="tbl-wrap"><table class="t"><thead><tr><th>#</th><th>Tanggal</th><th>Sesi</th><th class="r">Jarak</th><th class="r">Pace</th><th class="r">HR</th><th class="r">ATE</th><th class="r">EX</th><th>Catatan (klik baris)</th></tr></thead><tbody>'+rows+'</tbody></table></div>';
+  return '<div class="tbl-wrap"><table class="t"><thead><tr><th>#</th><th>Tanggal</th><th>Sesi</th><th class="r">Jarak</th><th class="r">Pace</th><th class="r">HR</th><th class="r">ATE</th><th class="r">EX</th><th>Catatan (klik baris untuk detail)</th></tr></thead><tbody>'+rows+'</tbody></table></div>';
 }
 
 function render(){
