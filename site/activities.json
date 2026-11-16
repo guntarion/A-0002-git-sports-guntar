@@ -1,6 +1,48 @@
 {
   "activities": [
     {
+      "aerobic_te": 0.1,
+      "avg_hr": 77,
+      "calories": 57,
+      "date": "2026-11-16",
+      "distance": 0.0,
+      "elevation_gain": 0.0,
+      "hr_zones": [
+        {
+          "low_bpm": 57,
+          "seconds": 1498,
+          "zone": 1
+        },
+        {
+          "low_bpm": 131,
+          "seconds": 0,
+          "zone": 2
+        },
+        {
+          "low_bpm": 144,
+          "seconds": 0,
+          "zone": 3
+        },
+        {
+          "low_bpm": 156,
+          "seconds": 0,
+          "zone": 4
+        },
+        {
+          "low_bpm": 169,
+          "seconds": 0,
+          "zone": 5
+        }
+      ],
+      "id": "25092398249",
+      "max_hr": 121,
+      "moving_time": 1500.4,
+      "name": "Strength",
+      "raw_type": "strength_training",
+      "start_date_local": "2026-11-16T06:31:16",
+      "type": "WeightTraining"
+    },
+    {
       "aerobic_te": 3.2,
       "anaerobic_te": 2.4,
       "avg_cadence": 143,
@@ -31051,7 +31093,7 @@
       "type": "WeightTraining"
     }
   ],
-  "generated_at": "2026-11-15T08:42:55.909192+00:00",
+  "generated_at": "2026-11-16T08:52:42.578036+00:00",
   "source": "garmin",
   "units": {
     "distance": "km",
