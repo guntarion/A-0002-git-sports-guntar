@@ -1,6 +1,130 @@
 {
   "activities": [
     {
+      "aerobic_te": 2.7,
+      "avg_cadence": 154,
+      "avg_ground_contact": 298,
+      "avg_hr": 142,
+      "avg_pace_secs_per_km": 472,
+      "avg_stride_len": 81.14,
+      "avg_vertical_osc": 8.2,
+      "calories": 435,
+      "date": "2026-11-17",
+      "distance": 6104.3,
+      "elevation_gain": 24.0,
+      "hr_zones": [
+        {
+          "low_bpm": 57,
+          "seconds": 504,
+          "zone": 1
+        },
+        {
+          "low_bpm": 132,
+          "seconds": 642,
+          "zone": 2
+        },
+        {
+          "low_bpm": 144,
+          "seconds": 1450,
+          "zone": 3
+        },
+        {
+          "low_bpm": 156,
+          "seconds": 279,
+          "zone": 4
+        },
+        {
+          "low_bpm": 169,
+          "seconds": 0,
+          "zone": 5
+        }
+      ],
+      "id": "25102592829",
+      "max_hr": 160,
+      "moving_time": 2872.5,
+      "name": "Training Sesi # 35 - Easy Run Upscale",
+      "note": "SE =  92 meski skip pendinginan. \nRange easy run sesi latihan berubah jadi 7.33 - 8.02\nPake jaket parasut. Sempat jatuh sampai dua bagian lutut bolong.",
+      "raw_type": "running",
+      "splits": [
+        {
+          "avg_hr": 119,
+          "avg_speed_mps": 2.028,
+          "distance": 1000.0,
+          "duration": 486.0,
+          "elevation_gain": 24.0,
+          "max_hr": 134,
+          "pace_secs_per_km": 493
+        },
+        {
+          "avg_hr": 131,
+          "avg_speed_mps": 2.088,
+          "distance": 223.2,
+          "duration": 106.9,
+          "max_hr": 135,
+          "pace_secs_per_km": 479
+        },
+        {
+          "avg_hr": 139,
+          "avg_speed_mps": 2.179,
+          "distance": 1000.0,
+          "duration": 458.9,
+          "max_hr": 146,
+          "pace_secs_per_km": 459
+        },
+        {
+          "avg_hr": 145,
+          "avg_speed_mps": 2.18,
+          "distance": 1000.0,
+          "duration": 458.8,
+          "max_hr": 150,
+          "pace_secs_per_km": 459
+        },
+        {
+          "avg_hr": 149,
+          "avg_speed_mps": 2.16,
+          "distance": 1000.0,
+          "duration": 463.0,
+          "max_hr": 154,
+          "pace_secs_per_km": 463
+        },
+        {
+          "avg_hr": 153,
+          "avg_speed_mps": 2.204,
+          "distance": 263.0,
+          "duration": 119.0,
+          "max_hr": 156,
+          "pace_secs_per_km": 454
+        },
+        {
+          "avg_hr": 153,
+          "avg_speed_mps": 2.105,
+          "distance": 1000.0,
+          "duration": 475.0,
+          "max_hr": 158,
+          "pace_secs_per_km": 475
+        },
+        {
+          "avg_hr": 157,
+          "avg_speed_mps": 2.234,
+          "distance": 279.3,
+          "duration": 125.0,
+          "max_hr": 160,
+          "pace_secs_per_km": 448
+        },
+        {
+          "avg_hr": 149,
+          "avg_speed_mps": 1.878,
+          "distance": 338.9,
+          "duration": 180.0,
+          "max_hr": 159,
+          "pace_secs_per_km": 532
+        }
+      ],
+      "start_date_local": "2026-11-17T04:51:44",
+      "type": "Run",
+      "vo2_max": 41.0
+    },
+    {
       "aerobic_te": 0.1,
       "avg_hr": 77,
       "calories": 57,
@@ -31093,7 +31217,7 @@
       "type": "WeightTraining"
     }
   ],
-  "generated_at": "2026-11-16T08:52:42.578036+00:00",
+  "generated_at": "2026-11-17T09:59:24.951605+00:00",
   "source": "garmin",
   "units": {
     "distance": "km",

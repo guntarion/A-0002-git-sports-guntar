@@ -9181,5 +9181,29 @@
     "start_date_local": "2026-11-16T06:31:16",
     "type": "WeightTraining",
     "year": 2026
+  },
+  {
+    "aerobic_te": 2.7,
+    "avg_cadence": 154,
+    "avg_ground_contact": 298,
+    "avg_hr": 142,
+    "avg_speed_mps": 2.119,
+    "avg_stride_len": 81.14,
+    "avg_vertical_osc": 8.2,
+    "calories": 435,
+    "date": "2026-11-17",
+    "distance": 6104.330078125,
+    "elevation_gain": 24.0,
+    "id": "25102592829",
+    "max_hr": 160,
+    "moving_time": 2872.4979705810547,
+    "name": "Training Sesi # 35 - Easy Run Upscale",
+    "note": "SE =  92 meski skip pendinginan. \nRange easy run sesi latihan berubah jadi 7.33 - 8.02\nPake jaket parasut. Sempat jatuh sampai dua bagian lutut bolong.",
+    "raw_activity_type": "running",
+    "raw_type": "running",
+    "start_date_local": "2026-11-17T04:51:44",
+    "type": "Run",
+    "vo2_max": 41.0,
+    "year": 2026
   }
 ]
