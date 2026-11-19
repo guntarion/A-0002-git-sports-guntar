@@ -9275,5 +9275,29 @@
     "start_date_local": "2026-11-18T16:12:12",
     "type": "WeightTraining",
     "year": 2026
+  },
+  {
+    "aerobic_te": 3.2,
+    "avg_cadence": 153,
+    "avg_ground_contact": 295,
+    "avg_hr": 146,
+    "avg_speed_mps": 2.207,
+    "avg_stride_len": 85.84,
+    "avg_vertical_osc": 8.3,
+    "calories": 466,
+    "date": "2026-11-19",
+    "distance": 6248.10986328125,
+    "elevation_gain": 190.0,
+    "id": "25125231196",
+    "max_hr": 161,
+    "moving_time": 2812.7560119628906,
+    "name": "Training Sesi # 36 - Easy Run",
+    "note": "SE 69. Mostly krn dibikin lebih kencang. Strong di awal, masuk km ke-4 sudah berasa capek.",
+    "raw_activity_type": "running",
+    "raw_type": "running",
+    "start_date_local": "2026-11-19T04:53:30",
+    "type": "Run",
+    "vo2_max": 42.0,
+    "year": 2026
   }
 ]
