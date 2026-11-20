@@ -1,6 +1,91 @@
 {
   "activities": [
     {
+      "aerobic_te": 0.3,
+      "avg_hr": 96,
+      "calories": 121,
+      "date": "2026-11-20",
+      "distance": 0.0,
+      "elevation_gain": 0.0,
+      "hr_zones": [
+        {
+          "low_bpm": 57,
+          "seconds": 1800,
+          "zone": 1
+        },
+        {
+          "low_bpm": 131,
+          "seconds": 0,
+          "zone": 2
+        },
+        {
+          "low_bpm": 144,
+          "seconds": 0,
+          "zone": 3
+        },
+        {
+          "low_bpm": 156,
+          "seconds": 0,
+          "zone": 4
+        },
+        {
+          "low_bpm": 169,
+          "seconds": 0,
+          "zone": 5
+        }
+      ],
+      "id": "25136885560",
+      "max_hr": 129,
+      "moving_time": 1800.5,
+      "name": "Strength",
+      "raw_type": "strength_training",
+      "start_date_local": "2026-11-20T08:07:10",
+      "type": "WeightTraining"
+    },
+    {
+      "aerobic_te": 0.9,
+      "anaerobic_te": 1.9,
+      "avg_hr": 100,
+      "calories": 56,
+      "date": "2026-11-20",
+      "distance": 0.0,
+      "elevation_gain": 0.0,
+      "hr_zones": [
+        {
+          "low_bpm": 57,
+          "seconds": 538,
+          "zone": 1
+        },
+        {
+          "low_bpm": 131,
+          "seconds": 74,
+          "zone": 2
+        },
+        {
+          "low_bpm": 144,
+          "seconds": 13,
+          "zone": 3
+        },
+        {
+          "low_bpm": 156,
+          "seconds": 18,
+          "zone": 4
+        },
+        {
+          "low_bpm": 169,
+          "seconds": 15,
+          "zone": 5
+        }
+      ],
+      "id": "25136740395",
+      "max_hr": 173,
+      "moving_time": 198.0,
+      "name": "Jump Rope",
+      "raw_type": "jump_rope",
+      "start_date_local": "2026-11-20T07:54:21",
+      "type": "jump_rope"
+    },
+    {
       "aerobic_te": 3.2,
       "avg_cadence": 153,
       "avg_ground_contact": 295,
@@ -31541,7 +31626,7 @@
       "type": "WeightTraining"
     }
   ],
-  "generated_at": "2026-11-19T09:43:49.085463+00:00",
+  "generated_at": "2026-11-20T09:31:13.624558+00:00",
   "source": "garmin",
   "units": {
     "distance": "km",
