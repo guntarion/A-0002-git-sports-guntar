@@ -1,6 +1,138 @@
 {
   "activities": [
     {
+      "aerobic_te": 3.1,
+      "avg_cadence": 145,
+      "avg_ground_contact": 297,
+      "avg_hr": 145,
+      "avg_pace_secs_per_km": 477,
+      "avg_stride_len": 84.68,
+      "avg_vertical_osc": 8.3,
+      "calories": 494,
+      "date": "2026-11-22",
+      "distance": 6412.0,
+      "elevation_gain": 52.0,
+      "hr_zones": [
+        {
+          "low_bpm": 57,
+          "seconds": 521,
+          "zone": 1
+        },
+        {
+          "low_bpm": 132,
+          "seconds": 607,
+          "zone": 2
+        },
+        {
+          "low_bpm": 144,
+          "seconds": 1285,
+          "zone": 3
+        },
+        {
+          "low_bpm": 156,
+          "seconds": 648,
+          "zone": 4
+        },
+        {
+          "low_bpm": 169,
+          "seconds": 0,
+          "zone": 5
+        }
+      ],
+      "id": "25157202377",
+      "max_hr": 166,
+      "moving_time": 2997.5,
+      "name": "Training Sesi # 37 - Citraland Easy Run",
+      "note": "Mbarengi Adnan & Asya (on bike). SE = 60\nMayan dapat suasana lega. Semua lari gak ada yg jalan.",
+      "raw_type": "running",
+      "splits": [
+        {
+          "avg_hr": 125,
+          "avg_speed_mps": 1.927,
+          "distance": 1000.0,
+          "duration": 490.0,
+          "elevation_gain": 12.0,
+          "max_hr": 140,
+          "pace_secs_per_km": 519
+        },
+        {
+          "avg_hr": 131,
+          "avg_speed_mps": 1.507,
+          "distance": 122.1,
+          "duration": 68.0,
+          "elevation_gain": 1.0,
+          "max_hr": 140,
+          "pace_secs_per_km": 664
+        },
+        {
+          "avg_hr": 142,
+          "avg_speed_mps": 2.223,
+          "distance": 1000.0,
+          "duration": 449.8,
+          "elevation_gain": 8.0,
+          "max_hr": 149,
+          "pace_secs_per_km": 450
+        },
+        {
+          "avg_hr": 141,
+          "avg_speed_mps": 2.092,
+          "distance": 1000.0,
+          "duration": 475.0,
+          "elevation_gain": 8.0,
+          "max_hr": 151,
+          "pace_secs_per_km": 478
+        },
+        {
+          "avg_hr": 150,
+          "avg_speed_mps": 2.194,
+          "distance": 1000.0,
+          "duration": 446.0,
+          "elevation_gain": 3.0,
+          "max_hr": 161,
+          "pace_secs_per_km": 456
+        },
+        {
+          "avg_hr": 155,
+          "avg_speed_mps": 2.2,
+          "distance": 256.0,
+          "duration": 116.0,
+          "elevation_gain": 1.0,
+          "max_hr": 158,
+          "pace_secs_per_km": 455
+        },
+        {
+          "avg_hr": 157,
+          "avg_speed_mps": 2.102,
+          "distance": 1000.0,
+          "duration": 475.7,
+          "elevation_gain": 7.0,
+          "max_hr": 162,
+          "pace_secs_per_km": 476
+        },
+        {
+          "avg_hr": 159,
+          "avg_speed_mps": 2.225,
+          "distance": 276.5,
+          "duration": 124.0,
+          "elevation_gain": 7.0,
+          "max_hr": 165,
+          "pace_secs_per_km": 449
+        },
+        {
+          "avg_hr": 155,
+          "avg_speed_mps": 2.101,
+          "distance": 757.3,
+          "duration": 353.0,
+          "elevation_gain": 5.0,
+          "max_hr": 166,
+          "pace_secs_per_km": 476
+        }
+      ],
+      "start_date_local": "2026-11-22T05:45:21",
+      "type": "Run",
+      "vo2_max": 42.0
+    },
+    {
       "aerobic_te": 0.4,
       "avg_hr": 99,
       "calories": 93,
@@ -31710,7 +31842,7 @@
       "type": "WeightTraining"
     }
   ],
-  "generated_at": "2026-11-21T09:02:58.007063+00:00",
+  "generated_at": "2026-11-22T09:11:37.781035+00:00",
   "source": "garmin",
   "units": {
     "distance": "km",
