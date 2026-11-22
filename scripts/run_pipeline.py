@@ -314,6 +314,14 @@ def run_pipeline(
                 sync_locations()
             except Exception as exc:
                 print(f"Warning: location sync failed (non-fatal): {exc}")
+            # Per-sample streams + full summary for the activity charts
+            # (non-fatal). Resumable and capped per run via STREAM_LIMIT, so a
+            # backlog drains over several days.
+            try:
+                from sync_activity_streams import main as sync_activity_streams
+                sync_activity_streams()
+            except Exception as exc:
+                print(f"Warning: activity-stream sync failed (non-fatal): {exc}")
             # Best efforts (non-fatal). Resumable: only runs not already
             # analysed are fetched, so a normal day costs a request or two.
             try:

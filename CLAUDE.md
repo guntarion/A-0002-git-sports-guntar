@@ -91,6 +91,7 @@ Every DB/AI stage is **non-fatal** — a failure there must never break the acti
 | `/api/performance` | public* | Time-series performance data (+ `latest_any` singletons) |
 | `/api/locations` | **required** | Session coordinates + GPS routes — never public |
 | `/api/body` | **required** | Newest `body_summary` row (weight, BMI, blood pressure, insights) — never public |
+| `/api/activity-detail?id=` | public | Per-sample streams (HR/pace/cadence/power/stamina… over time & distance) + full Garmin summary + power zones for ONE activity. No GPS |
 
 \* Public read matches the rest of the dashboard. **`weight_kg` is the one exception** — returned
 only to an authenticated caller.
@@ -109,6 +110,7 @@ Schema reference: `sql/schema_app.sql` (also applied lazily by the API and the s
 | `running_economy` | Per-activity RE, score, EI, cardiac cost, vertical ratio |
 | `activity_derived` | Per-activity aerobic decoupling + TRIMP |
 | `performance_metrics` | Long/narrow time series: `metric`, `date`, `value`, `extra` JSONB |
+| `activity_streams` | Per-activity column-oriented streams (`streams` JSONB), full Garmin `summary`, `power_zones`; `points=0` = no samples, not retried |
 | `activity_locations` | Session coordinates, place names and `route` polylines (private) |
 | `bp_readings`, `weigh_ins` | Garmin blood pressure / weigh-ins (private; local wall-clock + UTC) |
 | `body_summary` | One JSON row per computation of `scripts/body_metrics.py` (private) |
@@ -135,6 +137,8 @@ Schema reference: `sql/schema_app.sql` (also applied lazily by the API and the s
 | `scripts/body_metrics.py` | **Pure** BMI / weight trend / home-BP / cross-correlation / insight rules (all formulas live here) |
 | `scripts/sync_body_db.py` | Pulls Garmin BP + weigh-ins, computes the summary; `--set-height <cm>`, `--summary-only` |
 | `scripts/ai_insights_db.py` | Persists AI reports (`--backfill` imports history JSON) |
+| `scripts/sync_activity_streams.py` | Per-sample streams + summary → `activity_streams` (2–3 Garmin requests/activity, resumable, `--limit N`/`STREAM_LIMIT`, `0` = all, `--id`, `--rebuild`); self-calibrates units against the summary |
+| `site/actdetail.js` | Garmin-style detail (stacked charts, zoom + overlays, Stats, Time in Zones); used by Activities (expand a row) and Coaching (`chartsOnly`) |
 | `scripts/sync_locations.py` | Session coordinates (bulk) + GPS routes (`--routes`, resumable) |
 | `scripts/garmin_login_local.py` | Interactive local Garmin login (MFA-aware) |
 | `scripts/vercel_build.sh` | Vercel build step: hydrate `site/*.json` from `dashboard-data` |
@@ -154,6 +158,12 @@ Workflow env: `HRV_BACKFILL_DAYS` (default 7 — one Garmin request per day).
 **Vercel env:** `DATABASE_URL`, `APP_AUTH_TOKEN` (journal/todos password), `PGSSL=require`.
 
 **Local:** `.env` with `DATABASE_URL`; `config.local.yaml` with Garmin credentials.
+
+## Activity streams
+
+- First backfill is local and slow: `DATABASE_URL=… .venv/bin/python scripts/sync_activity_streams.py --limit 0` (the daily workflow only drains 25/day via `STREAM_LIMIT`).
+- Metric names are resolved from Garmin's `metricDescriptors` keys, not positions. Keys not in `KNOWN_KEYS` (e.g. stamina, performance condition) are stored under a de-prefixed name and labelled in `actdetail.js` `META`; the exact Garmin key names for stamina/performance condition were NOT verified against a live account — check one `--id` run and adjust `canon()`/`META` if a panel is missing.
+- GPS must never enter `activity_streams` (the endpoint is public): `maxpoly=0` and lat/lon keys are dropped.
 
 ## Data filtering rules
 

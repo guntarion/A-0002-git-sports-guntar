@@ -671,7 +671,7 @@
     const hasHrZones = act.hr_zones && act.hr_zones.length > 0;
     const hasSplits  = act.splits && act.splits.length > 0;
     const note       = (act.note || '').trim();
-    const hasDetail  = hasHrZones || hasSplits || !!note;
+    const hasDetail  = hasHrZones || hasSplits || !!note || !!act.id;
 
     // Extra stats
     const extras = [];
@@ -749,6 +749,7 @@
         noteBlock,
         gridHtml,
         extraHtml,
+        act.id ? '<div class="gsad-host" data-id="' + escHtml(String(act.id)) + '"></div>' : '',
         '</div>',
       ].join('');
     }
@@ -818,6 +819,13 @@
       if (!detail) return;
       main.addEventListener('click', function () {
         row.classList.toggle('expanded');
+        // Streams are fetched on first expand only: one request per opened activity.
+        var host = row.querySelector('.gsad-host');
+        if (host && !host.dataset.ready && row.classList.contains('expanded') && window.GSActDetail) {
+          host.dataset.ready = '1';
+          var act = acts.filter(function (a) { return String(a.id) === host.dataset.id; })[0];
+          window.GSActDetail.mount(host, { id: host.dataset.id, act: act, distUnit: distUnit });
+        }
       });
     });
   }
@@ -1064,5 +1072,6 @@
 }());
 </script>
   <script src="nav.js"></script>
+  <script src="actdetail.js"></script>
 </body>
 </html>

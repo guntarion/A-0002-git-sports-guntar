@@ -235,6 +235,9 @@ jobs:
           # up next day; any backlog drains gradually.
           LOCATION_ROUTES: "1"
           LOCATION_ROUTE_LIMIT: "25"
+          # Activity streams (HR/pace/cadence over time) cost 2-3 requests per
+          # activity; new sessions are picked up daily, the backlog drains over time.
+          STREAM_LIMIT: "25"
           # Best efforts also cost one detail request per new run.
           BEST_EFFORT_LIMIT: "25"
         run: |

@@ -1,3 +1,19 @@
+## 2026-11-22 18:46:00
+
+feat: Garmin-style activity detail charts from per-sample streams
+
+- scripts/sync_activity_streams.py stores per-sample HR/pace/cadence/power/
+  stamina/etc. plus the full Garmin summary and power zones in the new
+  activity_streams table (resumable, STREAM_LIMIT per run, no GPS); units are
+  self-calibrated against the summary
+- api/activity-detail.js serves one activity's streams (public, no GPS)
+- site/actdetail.js renders stacked charts (over time/distance, synced
+  crosshair), zoom with overlays, Stats grid and Time in Zones; wired into
+  Activities (expand row) and Coaching (charts only)
+- run_pipeline + sync workflow call the new sync; tests and CLAUDE.md added
+
+---
+
 ## 2026-07-26 05:59:40
 
 feat: add /export-health-csv command for 6-month health data export

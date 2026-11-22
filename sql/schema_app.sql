@@ -134,6 +134,23 @@ CREATE TABLE IF NOT EXISTS best_efforts (
     PRIMARY KEY (activity_id, distance_key)
 );
 
+-- Per-sample streams (HR / pace / cadence / power / stamina ... over time and
+-- distance) plus the full Garmin summary, drawn on the Activities and Coaching
+-- pages like Garmin Connect's activity charts. Column-oriented JSON:
+--   streams = {"n":..., "t":[sec], "d":[m], "m":{"hr":[..],"speed":[..],...}}
+-- No GPS here (routes stay in activity_locations, auth-gated). points=0 marks an
+-- activity with no samples so it is not refetched. See scripts/sync_activity_streams.py.
+CREATE TABLE IF NOT EXISTS activity_streams (
+    activity_id TEXT PRIMARY KEY,
+    date        DATE,
+    type        TEXT,
+    points      INTEGER NOT NULL DEFAULT 0,
+    streams     JSONB NOT NULL DEFAULT '{}'::jsonb,
+    summary     JSONB NOT NULL DEFAULT '{}'::jsonb,
+    power_zones JSONB NOT NULL DEFAULT '[]'::jsonb,
+    fetched_at  TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+
 -- On-demand AI analyses, cached per (kind, period) so repeat clicks are free.
 -- `inputs_fingerprint` lets the UI tell a stale analysis from a current one
 -- without re-billing the model.
@@ -149,6 +166,7 @@ CREATE TABLE IF NOT EXISTS ai_analyses (
 
 CREATE INDEX IF NOT EXISTS idx_be_key_time ON best_efforts(distance_key, duration_s);
 CREATE INDEX IF NOT EXISTS idx_be_date ON best_efforts(date DESC);
+CREATE INDEX IF NOT EXISTS idx_streams_date ON activity_streams(date DESC);
 CREATE INDEX IF NOT EXISTS idx_loc_date ON activity_locations(date DESC);
 CREATE INDEX IF NOT EXISTS idx_loc_type ON activity_locations(type);
 CREATE INDEX IF NOT EXISTS idx_loc_name ON activity_locations(location_name);

@@ -296,7 +296,7 @@ function detail(s){
   var sp=a.splits||[],sh='';
   if(sp.length)sh='<div class="dh">Split</div><table class="sp"><thead><tr><th>#</th><th>Jarak</th><th>Pace</th><th>HR</th><th>Elev</th></tr></thead><tbody>'
     +sp.map(function(x,i){return '<tr><td>'+(i+1)+'</td><td>'+(x.distance>=1000?(x.distance/1000).toFixed(2)+' km':Math.round(x.distance)+' m')+'</td><td>'+fP(x.pace_secs_per_km)+'</td><td>'+(x.avg_hr||'—')+'</td><td>'+(x.elevation_gain!=null?Math.round(x.elevation_gain)+' m':'—')+'</td></tr>';}).join('')+'</tbody></table>';
-  return g+'<div class="dcols"><div>'+zh+'</div><div>'+sh+'</div></div>'+(s.note?'<div class="dh" style="margin-top:12px">Catatan</div><div class="dnote">'+esc(s.note)+'</div>':'');
+  return g+'<div class="dcols"><div>'+zh+'</div><div>'+sh+'</div></div>'+(s.note?'<div class="dh" style="margin-top:12px">Catatan</div><div class="dnote">'+esc(s.note)+'</div>':'')+'<div class="dh" style="margin-top:14px">Grafik sesi</div><div class="gsad-host" data-id="'+esc(String(a.id))+'"></div>';
 }
 function table(v){
   var rows=v.slice().reverse().map(function(s,i){
@@ -331,7 +331,11 @@ function render(){
   h+='<div class="sec-title">Semua sesi <span class="badge-count">'+v.length+'</span></div>'+table(v);
   main.innerHTML=h;
   drawCharts(v);
-  main.querySelectorAll('tr.row').forEach(function(tr){tr.addEventListener('click',function(){var n=document.getElementById('n'+tr.dataset.i);if(n)n.hidden=!n.hidden;});});
+  main.querySelectorAll('tr.row').forEach(function(tr){tr.addEventListener('click',function(){var n=document.getElementById('n'+tr.dataset.i);if(!n)return;n.hidden=!n.hidden;
+    var h=n.querySelector('.gsad-host');
+    if(h&&!h.dataset.ready&&!n.hidden&&window.GSActDetail){h.dataset.ready='1';
+      var s=S.all.filter(function(o){return String(o.act.id)===h.dataset.id;})[0];
+      window.GSActDetail.mount(h,{id:h.dataset.id,act:s&&s.act,chartsOnly:true});}});});
 
   // pace vs HR on the coached sessions only (full-km splits; interval reps are ignored by the module)
   GSPaceHR.mount(document.getElementById('gphHost'),{activities:v.map(function(s){return s.act;}),
@@ -362,5 +366,6 @@ fetch('activities.json').then(function(r){if(!r.ok)throw new Error('HTTP '+r.sta
 </script>
 <script src="nav.js"></script>
 <script src="pacehr.js"></script>
+<script src="actdetail.js"></script>
 </body>
 </html>
