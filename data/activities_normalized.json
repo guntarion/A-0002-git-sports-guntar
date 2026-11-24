@@ -9409,5 +9409,30 @@
     "start_date_local": "2026-11-23T10:47:55",
     "type": "WeightTraining",
     "year": 2026
+  },
+  {
+    "aerobic_te": 3.3,
+    "anaerobic_te": 2.4,
+    "avg_cadence": 142,
+    "avg_ground_contact": 289,
+    "avg_hr": 143,
+    "avg_speed_mps": 2.224,
+    "avg_stride_len": 89.37,
+    "avg_vertical_osc": 7.9,
+    "calories": 487,
+    "date": "2026-11-24",
+    "distance": 6555.85986328125,
+    "elevation_gain": 4.0,
+    "id": "25178265248",
+    "max_hr": 183,
+    "moving_time": 2931.968994140625,
+    "name": "Training Sesi # 38 - Interval 8 x 200",
+    "note": "SE =  88 with PB 400m on 4:40\nDi tiap jeda interval dipake jalan",
+    "raw_activity_type": "running",
+    "raw_type": "running",
+    "start_date_local": "2026-11-24T04:59:51",
+    "type": "Run",
+    "vo2_max": 42.0,
+    "year": 2026
   }
 ]
