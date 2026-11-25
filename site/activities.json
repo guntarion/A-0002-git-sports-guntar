@@ -1,6 +1,63 @@
 {
   "activities": [
     {
+      "aerobic_te": 0.2,
+      "avg_cadence": 100,
+      "avg_hr": 90,
+      "avg_pace_secs_per_km": 840,
+      "avg_stride_len": 71.09,
+      "calories": 52,
+      "date": "2026-11-25",
+      "distance": 853.1,
+      "elevation_gain": 4.0,
+      "hr_zones": [
+        {
+          "low_bpm": 57,
+          "seconds": 708,
+          "zone": 1
+        },
+        {
+          "low_bpm": 131,
+          "seconds": 0,
+          "zone": 2
+        },
+        {
+          "low_bpm": 144,
+          "seconds": 0,
+          "zone": 3
+        },
+        {
+          "low_bpm": 156,
+          "seconds": 0,
+          "zone": 4
+        },
+        {
+          "low_bpm": 169,
+          "seconds": 0,
+          "zone": 5
+        }
+      ],
+      "id": "25189302745",
+      "max_hr": 107,
+      "moving_time": 700.0,
+      "name": "Sidoarjo Walking",
+      "raw_type": "walking",
+      "splits": [
+        {
+          "avg_hr": 90,
+          "avg_speed_mps": 1.191,
+          "distance": 853.1,
+          "duration": 700.0,
+          "elevation_gain": 4.0,
+          "max_hr": 107,
+          "pace_secs_per_km": 840
+        }
+      ],
+      "start_date_local": "2026-11-25T04:56:35",
+      "type": "Walk",
+      "vo2_max": 42.0
+    },
+    {
       "aerobic_te": 3.3,
       "anaerobic_te": 2.4,
       "avg_cadence": 142,
@@ -32100,7 +32157,7 @@
       "type": "WeightTraining"
     }
   ],
-  "generated_at": "2026-11-24T11:53:59.765377+00:00",
+  "generated_at": "2026-11-25T10:45:55.311681+00:00",
   "source": "garmin",
   "units": {
     "distance": "km",
