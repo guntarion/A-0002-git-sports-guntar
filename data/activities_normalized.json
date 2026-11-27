@@ -9499,5 +9499,27 @@
     "type": "Run",
     "vo2_max": 42.0,
     "year": 2026
+  },
+  {
+    "aerobic_te": 2.6,
+    "avg_cadence": 149,
+    "avg_ground_contact": 303,
+    "avg_hr": 129,
+    "avg_speed_mps": 2.028,
+    "avg_stride_len": 95.98,
+    "avg_vertical_osc": 9.1,
+    "calories": 485,
+    "date": "2026-11-27",
+    "distance": 7360.0,
+    "elevation_gain": 0.0,
+    "id": "25211606303",
+    "max_hr": 152,
+    "moving_time": 3540.219985961914,
+    "name": "Training Sesi # 40 Treadmill Long Run",
+    "raw_activity_type": "treadmill_running",
+    "raw_type": "treadmill_running",
+    "start_date_local": "2026-11-27T07:59:44",
+    "type": "VirtualRun",
+    "year": 2026
   }
 ]

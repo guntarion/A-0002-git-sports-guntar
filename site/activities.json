@@ -1,6 +1,143 @@
 {
   "activities": [
     {
+      "aerobic_te": 2.6,
+      "avg_cadence": 149,
+      "avg_ground_contact": 303,
+      "avg_hr": 129,
+      "avg_pace_secs_per_km": 493,
+      "avg_stride_len": 95.98,
+      "avg_vertical_osc": 9.1,
+      "calories": 485,
+      "date": "2026-11-27",
+      "distance": 7360.0,
+      "elevation_gain": 0.0,
+      "hr_zones": [
+        {
+          "low_bpm": 57,
+          "seconds": 1923,
+          "zone": 1
+        },
+        {
+          "low_bpm": 132,
+          "seconds": 990,
+          "zone": 2
+        },
+        {
+          "low_bpm": 144,
+          "seconds": 717,
+          "zone": 3
+        },
+        {
+          "low_bpm": 156,
+          "seconds": 0,
+          "zone": 4
+        },
+        {
+          "low_bpm": 169,
+          "seconds": 0,
+          "zone": 5
+        }
+      ],
+      "id": "25211606303",
+      "max_hr": 152,
+      "moving_time": 3540.2,
+      "name": "Training Sesi # 40 Treadmill Long Run",
+      "raw_type": "treadmill_running",
+      "splits": [
+        {
+          "avg_hr": 101,
+          "avg_speed_mps": 1.972,
+          "distance": 1000.0,
+          "duration": 436.0,
+          "max_hr": 114,
+          "pace_secs_per_km": 507
+        },
+        {
+          "avg_hr": 112,
+          "avg_speed_mps": 2.243,
+          "distance": 208.3,
+          "duration": 92.9,
+          "max_hr": 118,
+          "pace_secs_per_km": 446
+        },
+        {
+          "avg_hr": 120,
+          "avg_speed_mps": 2.35,
+          "distance": 1000.0,
+          "duration": 425.5,
+          "max_hr": 132,
+          "pace_secs_per_km": 426
+        },
+        {
+          "avg_hr": 126,
+          "avg_speed_mps": 2.472,
+          "distance": 1000.0,
+          "duration": 404.0,
+          "max_hr": 134,
+          "pace_secs_per_km": 405
+        },
+        {
+          "avg_hr": 128,
+          "avg_speed_mps": 2.447,
+          "distance": 1000.0,
+          "duration": 408.7,
+          "max_hr": 133,
+          "pace_secs_per_km": 409
+        },
+        {
+          "avg_hr": 133,
+          "avg_speed_mps": 2.414,
+          "distance": 1000.0,
+          "duration": 414.0,
+          "max_hr": 142,
+          "pace_secs_per_km": 414
+        },
+        {
+          "avg_hr": 138,
+          "avg_speed_mps": 2.45,
+          "distance": 1000.0,
+          "duration": 408.0,
+          "max_hr": 145,
+          "pace_secs_per_km": 408
+        },
+        {
+          "avg_hr": 144,
+          "avg_speed_mps": 2.604,
+          "distance": 882.4,
+          "duration": 338.9,
+          "max_hr": 147,
+          "pace_secs_per_km": 384
+        },
+        {
+          "avg_hr": 145,
+          "avg_speed_mps": 2.589,
+          "distance": 1000.0,
+          "duration": 386.3,
+          "max_hr": 151,
+          "pace_secs_per_km": 386
+        },
+        {
+          "avg_hr": 149,
+          "avg_speed_mps": 2.457,
+          "distance": 525.1,
+          "duration": 213.0,
+          "max_hr": 152,
+          "pace_secs_per_km": 407
+        },
+        {
+          "avg_hr": 146,
+          "avg_speed_mps": 1.169,
+          "distance": 34.9,
+          "duration": 13.0,
+          "max_hr": 150,
+          "pace_secs_per_km": 855
+        }
+      ],
+      "start_date_local": "2026-11-27T07:59:44",
+      "type": "VirtualRun"
+    },
+    {
       "aerobic_te": 3.0,
       "avg_cadence": 152,
       "avg_ground_contact": 293,
@@ -32338,7 +32475,7 @@
       "type": "WeightTraining"
     }
   ],
-  "generated_at": "2026-11-26T10:18:00.852455+00:00",
+  "generated_at": "2026-11-27T10:24:17.958497+00:00",
   "source": "garmin",
   "units": {
     "distance": "km",

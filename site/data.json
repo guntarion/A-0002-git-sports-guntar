@@ -3359,6 +3359,13 @@
       "subtype": "running",
       "type": "Run",
       "year": 2026
+    },
+    {
+      "date": "2026-11-27",
+      "hour": 7,
+      "subtype": "treadmill_running",
+      "type": "VirtualRun",
+      "year": 2026
     }
   ],
   "aggregates": {
@@ -5155,6 +5162,15 @@
           "distance": 3000.0,
           "elevation_gain": 125.0,
           "moving_time": 1734.0
+        },
+        "2026-11-27": {
+          "activity_ids": [
+            "25211606303"
+          ],
+          "count": 1,
+          "distance": 7360.0,
+          "elevation_gain": 0.0,
+          "moving_time": 3540.219985961914
         }
       },
       "Walk": {
@@ -7305,7 +7321,7 @@
       }
     }
   },
-  "generated_at": "2026-11-26T10:17:43.493349+00:00",
+  "generated_at": "2026-11-27T10:23:59.213616+00:00",
   "other_bucket": "OtherSports",
   "repo": "guntarion/A-0002-git-sports-guntar",
   "source": "garmin",
