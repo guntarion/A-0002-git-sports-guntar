@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-11-27T10:23:59.206506+00:00",
+  "generated_at": "2026-11-28T09:40:47.845332+00:00",
   "years": {
     "2026": {
       "Hike": {
@@ -3488,6 +3488,15 @@
           "distance": 0.0,
           "elevation_gain": 0.0,
           "moving_time": 1200.407958984375
+        },
+        "2026-11-28": {
+          "activity_ids": [
+            "25220887977"
+          ],
+          "count": 1,
+          "distance": 0.0,
+          "elevation_gain": 0.0,
+          "moving_time": 1500.333984375
         }
       },
       "Workout": {
@@ -3887,6 +3896,15 @@
           "distance": 0.0,
           "elevation_gain": 0.0,
           "moving_time": 190.1999969482422
+        },
+        "2026-11-28": {
+          "activity_ids": [
+            "25220777335"
+          ],
+          "count": 1,
+          "distance": 0.0,
+          "elevation_gain": 0.0,
+          "moving_time": 189.52000427246094
         }
       },
       "meditation": {

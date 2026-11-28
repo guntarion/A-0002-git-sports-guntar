@@ -3366,6 +3366,20 @@
       "subtype": "treadmill_running",
       "type": "VirtualRun",
       "year": 2026
+    },
+    {
+      "date": "2026-11-28",
+      "hour": 8,
+      "subtype": "jump_rope",
+      "type": "jump_rope",
+      "year": 2026
+    },
+    {
+      "date": "2026-11-28",
+      "hour": 9,
+      "subtype": "strength_training",
+      "type": "WeightTraining",
+      "year": 2026
     }
   ],
   "aggregates": {
@@ -6856,6 +6870,15 @@
           "distance": 0.0,
           "elevation_gain": 0.0,
           "moving_time": 1200.407958984375
+        },
+        "2026-11-28": {
+          "activity_ids": [
+            "25220887977"
+          ],
+          "count": 1,
+          "distance": 0.0,
+          "elevation_gain": 0.0,
+          "moving_time": 1500.333984375
         }
       },
       "Workout": {
@@ -7255,6 +7278,15 @@
           "distance": 0.0,
           "elevation_gain": 0.0,
           "moving_time": 190.1999969482422
+        },
+        "2026-11-28": {
+          "activity_ids": [
+            "25220777335"
+          ],
+          "count": 1,
+          "distance": 0.0,
+          "elevation_gain": 0.0,
+          "moving_time": 189.52000427246094
         }
       },
       "meditation": {
@@ -7321,7 +7353,7 @@
       }
     }
   },
-  "generated_at": "2026-11-27T10:23:59.213616+00:00",
+  "generated_at": "2026-11-28T09:40:47.852462+00:00",
   "other_bucket": "OtherSports",
   "repo": "guntarion/A-0002-git-sports-guntar",
   "source": "garmin",

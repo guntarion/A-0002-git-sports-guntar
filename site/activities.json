@@ -1,6 +1,93 @@
 {
   "activities": [
     {
+      "aerobic_te": 0.7,
+      "anaerobic_te": 0.9,
+      "avg_hr": 106,
+      "calories": 134,
+      "date": "2026-11-28",
+      "distance": 0.0,
+      "elevation_gain": 0.0,
+      "hr_zones": [
+        {
+          "low_bpm": 57,
+          "seconds": 1470,
+          "zone": 1
+        },
+        {
+          "low_bpm": 131,
+          "seconds": 23,
+          "zone": 2
+        },
+        {
+          "low_bpm": 144,
+          "seconds": 7,
+          "zone": 3
+        },
+        {
+          "low_bpm": 156,
+          "seconds": 0,
+          "zone": 4
+        },
+        {
+          "low_bpm": 169,
+          "seconds": 0,
+          "zone": 5
+        }
+      ],
+      "id": "25220887977",
+      "max_hr": 154,
+      "moving_time": 1500.3,
+      "name": "Strength",
+      "raw_type": "strength_training",
+      "start_date_local": "2026-11-28T09:03:15",
+      "type": "WeightTraining"
+    },
+    {
+      "aerobic_te": 0.6,
+      "anaerobic_te": 0.7,
+      "avg_hr": 125,
+      "calories": 35,
+      "date": "2026-11-28",
+      "distance": 0.0,
+      "elevation_gain": 0.0,
+      "hr_zones": [
+        {
+          "low_bpm": 57,
+          "seconds": 198,
+          "zone": 1
+        },
+        {
+          "low_bpm": 131,
+          "seconds": 25,
+          "zone": 2
+        },
+        {
+          "low_bpm": 144,
+          "seconds": 9,
+          "zone": 3
+        },
+        {
+          "low_bpm": 156,
+          "seconds": 16,
+          "zone": 4
+        },
+        {
+          "low_bpm": 169,
+          "seconds": 0,
+          "zone": 5
+        }
+      ],
+      "id": "25220777335",
+      "max_hr": 163,
+      "moving_time": 189.5,
+      "name": "Jump Rope",
+      "note": "PB 500\nBerhenti awal di 193",
+      "raw_type": "jump_rope",
+      "start_date_local": "2026-11-28T08:51:46",
+      "type": "jump_rope"
+    },
+    {
       "aerobic_te": 2.6,
       "avg_cadence": 149,
       "avg_ground_contact": 303,
@@ -32475,7 +32562,7 @@
       "type": "WeightTraining"
     }
   ],
-  "generated_at": "2026-11-27T10:24:17.958497+00:00",
+  "generated_at": "2026-11-28T09:41:09.615055+00:00",
   "source": "garmin",
   "units": {
     "distance": "km",

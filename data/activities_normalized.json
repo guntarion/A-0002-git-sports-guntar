@@ -9521,5 +9521,42 @@
     "start_date_local": "2026-11-27T07:59:44",
     "type": "VirtualRun",
     "year": 2026
+  },
+  {
+    "aerobic_te": 0.6,
+    "anaerobic_te": 0.7,
+    "avg_hr": 125,
+    "calories": 35,
+    "date": "2026-11-28",
+    "distance": 0.0,
+    "elevation_gain": 0.0,
+    "id": "25220777335",
+    "max_hr": 163,
+    "moving_time": 189.52000427246094,
+    "name": "Jump Rope",
+    "note": "PB 500\nBerhenti awal di 193",
+    "raw_activity_type": "jump_rope",
+    "raw_type": "jump_rope",
+    "start_date_local": "2026-11-28T08:51:46",
+    "type": "jump_rope",
+    "year": 2026
+  },
+  {
+    "aerobic_te": 0.7,
+    "anaerobic_te": 0.9,
+    "avg_hr": 106,
+    "calories": 134,
+    "date": "2026-11-28",
+    "distance": 0.0,
+    "elevation_gain": 0.0,
+    "id": "25220887977",
+    "max_hr": 154,
+    "moving_time": 1500.333984375,
+    "name": "Strength",
+    "raw_activity_type": "strength_training",
+    "raw_type": "strength_training",
+    "start_date_local": "2026-11-28T09:03:15",
+    "type": "WeightTraining",
+    "year": 2026
   }
 ]
